@@ -74,13 +74,15 @@ def setup_dtype_axis(axis):
             tick.tick1line.set_visible(False)
 
 
-def draw_heatmaps(df):
+def draw_heatmaps(df: pd.DataFrame):
     # order of data types
     dtype_app_counts = df.groupby(['flowData'])['packageName'].nunique()
 
     # order of entities
     ent_app_counts = df.groupby(['flowEntity'])['packageName'].nunique().sort_values(kind='mergesort')
-    ent_app_counts['facebook'] = ent_app_counts.pop('facebook')
+    print(ent_app_counts.head())
+    if 'facebook' in ent_app_counts:
+        ent_app_counts['facebook'] = ent_app_counts.pop('facebook')
     ent_app_counts['oculus'] = ent_app_counts.pop('oculus')
     ent_app_counts['1st party'] = ent_app_counts.pop('1st party')
     ent_app_counts = ent_app_counts.iloc[::-1]
@@ -126,7 +128,7 @@ def draw_heatmaps(df):
     # categorize data types
     y_ticks = []
     for cat in DTYPE_CATEGORY_ORDER:
-        cat_cols = [k for k, v in DTYPE_CATEGORY_MAP.items() if v == cat]
+        cat_cols = [k for k, v in DTYPE_CATEGORY_MAP.items() if v == cat and k in dtype_app_counts]
         cat_cols.sort(key=lambda x: (-dtype_app_counts[x], x))
         dis_label = r"(%s)" % cat
         y_ticks.append(dis_label)
@@ -207,7 +209,7 @@ def draw_dtype_barplot(df):
 
     sorted_cols = []
     for category in DTYPE_CATEGORY_ORDER[::-1]:
-        cat_cols = [k for k, v in DTYPE_CATEGORY_MAP.items() if v == category]
+        cat_cols = [k for k, v in DTYPE_CATEGORY_MAP.items() if v == category and k in agg.index]
         cat_cols.sort(key=lambda x: agg.loc[x].sum())
         sorted_cols.extend(cat_cols)
         sorted_cols.append(f'({category})')
