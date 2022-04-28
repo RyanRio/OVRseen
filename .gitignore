@@ -1,0 +1,21 @@
+OVRseen_datasets/
+__pycache__
+appmon.keystore
+apps-under-test.csv
+*.zip
+figs_and_tables/
+__MACOSX
+virtualenv
+*.csv
+*.apk
+_bypass_all_ssl_pinnings.js
+NlpFinalModel.tar.gz
+# network to policy consistency temporary files
+ext/
+ext2/
+# unity so files
+unity_so_files/
+PCAPS_NEW/
+PCAPs/
+com.beatgames.beatsaber.demo/
+
