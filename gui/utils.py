@@ -27,8 +27,9 @@ class PathManager:
     CERT_VALIDATION_BYPASS = TRAFFIC_COLLECTION / "cert_validation_bypass"
 
     PRIVACY_POLICY = Path("privacy_policy")
-    NETWORK_TO_POLICY_CONSISTENCY = Path("network-to-privacy_consistency")
-    PURPOSE_EXTRACTION = Path("purpose_extraction")
+    NETWORK_TO_POLICY_CONSISTENCY = PRIVACY_POLICY / Path("network-to-privacy_consistency")
+    GRAPHS = NETWORK_TO_POLICY_CONSISTENCY / Path("ext") / Path("plots")
+    PURPOSE_EXTRACTION = PRIVACY_POLICY / Path("purpose_extraction")
 
     def __combine_outputs(self, *outputs: Tuple[str, str]):
         sum_stdout = ""
@@ -115,7 +116,7 @@ class PathManager:
         else:
             globals.redirect_print_func("WARNING: Set the ovrseen directory in the first tab")
             return False
-    
+
     def chdir_base(self):
         if self._ovrseen_path is not None:
             os.chdir(self._ovrseen_path)
@@ -134,4 +135,3 @@ class PathManager:
         with open("ovrseen_directory.txt", "w") as f:
             if self._ovrseen_path is not None:
                 f.write(str(self._ovrseen_path.absolute()))
-    
