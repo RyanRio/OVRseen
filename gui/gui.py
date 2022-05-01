@@ -5,8 +5,8 @@ from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QTableWidg
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import QFile, QRect, QEvent
 
-from gui.app_corpus.pripol_graph_loader import PriPolPriPolGraphHandler
-from gui.app_corpus.postproc_graph_loader import PostProcGraphHandler
+from gui.app_corpus.pripol_graph_loader import PriPolGraphHandler
+from gui.app_corpus.postpros_graph_loader import PostProcGraphHandler
 
 from .ui_mainwindow import Ui_MainWindow
 from . import globals, utils
