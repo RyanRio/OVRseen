@@ -411,28 +411,28 @@ p, li { white-space: pre-wrap; }
           <item>
            <layout class="QVBoxLayout" name="verticalLayout_4">
             <item>
-             <widget class="QPushButton" name="pushButton_6">
+             <widget class="QPushButton" name="set_up_analysis">
               <property name="text">
                <string>Set Up Analysis</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_5">
+             <widget class="QPushButton" name="load_collected">
               <property name="text">
                <string>Load Collected App Data</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_7">
+             <widget class="QPushButton" name="analyze_data">
               <property name="text">
                <string>Analyze App Data</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_4">
+             <widget class="QPushButton" name="create_graphs">
               <property name="text">
                <string>Generate Graphs</string>
               </property>
