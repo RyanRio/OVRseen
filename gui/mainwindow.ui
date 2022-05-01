@@ -405,21 +405,21 @@ wiki, however this automates many of the tasks required.
             <item>
              <widget class="QPushButton" name="frida_bypass">
               <property name="text">
-               <string>App is Launched</string>
+               <string>Collect PCAPs</string>
               </property>
              </widget>
             </item>
             <item>
              <widget class="QPushButton" name="frida_collect">
               <property name="text">
-               <string>Close App</string>
+               <string>Download PCAPs from Device</string>
               </property>
              </widget>
             </item>
             <item>
              <widget class="QPushButton" name="frida_collect_uninstall">
               <property name="text">
-               <string>Close App (And Uninstall)</string>
+               <string>Download PCAPs and Uninstall</string>
               </property>
              </widget>
             </item>
