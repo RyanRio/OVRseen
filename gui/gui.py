@@ -51,17 +51,6 @@ class MainWindow(QMainWindow):
         self.ui.analyze_data.clicked.connect(self.analyzeData)
         self.ui.create_graphs.clicked.connect(self.createGraphs)
 
-        # setup privacy policy analysis paths + loaders
-        pppath = self.path_manager.ovrseen_path / utils.PathManager.POST_PROCESSING / "all-merged-with-esld-engine-privacy-developer-party.csv"
-        self.pp_data_loader = PPDataHandler(pppath)
-        # apps data table
-        self.ui.privacy_policies_app_list.setRowCount(self.pp_data_loader.number_of_apps)
-        self.ui.privacy_policies_app_list.setColumnCount(2)
-        fieldnames = ["Selected","App_Title"]
-        for row, app in enumerate(self.pp_data_loader.apps):
-            self.ui.privacy_policies_app_list.setItem(row, 0, QTableWidgetItem(QCheckBox())) # TODO check
-            self.ui.privacy_policies_app_list.setItem(row, 1, QTableWidgetItem(app))
-
     def resizeEvent(self, event):
         self.ui.horizontalLayoutWidget.setGeometry(QRect(0, 0, self.width(), self.height()))
         self.ui.app_layout_object.setGeometry(QRect(0, 0, self.width() - 20, self.height() - 20))
@@ -159,11 +148,11 @@ class MainWindow(QMainWindow):
         pppath = self.path_manager.ovrseen_path / utils.PathManager.POST_PROCESSING / "all-merged-with-esld-engine-privacy-developer-party.csv"
         self.pp_data_loader = PPDataHandler(pppath)
         # apps data table
-        self.ui.app_data_table.setRowCount(self.pp_data_loader.number_of_apps)
-        self.ui.app_data_table.setColumnCount(2)
+        self.ui.app_list_table.setRowCount(self.pp_data_loader.number_of_apps)
+        self.ui.app_list_table.setColumnCount(2)
         fieldnames = ["App_Title"]
         for row, app in enumerate(self.pp_data_loader.apps):
-            self.ui.app_data_table.setItem(row, 0, QTableWidgetItem(app))
+            self.ui.app_list_table.setItem(row, 0, QTableWidgetItem(app))
 
     def analyzeData(self):
         self.redirect_print("conducting privacy policy analysis")
