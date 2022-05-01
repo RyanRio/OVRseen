@@ -6,7 +6,7 @@ from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import QFile, QRect, QEvent
 
 from gui.app_corpus.pripol_graph_loader import PriPolGraphHandler
-from gui.app_corpus.postpros_graph_loader import PostProcGraphHandler
+# from gui.app_corpus.postproc_graph_loader import PostProcGraphHandler
 
 from .ui_mainwindow import Ui_MainWindow
 from . import globals, utils
@@ -148,19 +148,19 @@ class MainWindow(QMainWindow):
         self.redirect_print("running post-processing")
         self.path_manager.run_command(utils.Command.POST_PROCESSING)
 
-    def ppGraphs(self):
-        self.redirect_print("creating post-processing graphs")
-        self.path_manager.run_command(utils.Command.PP_GRAPHS)
-
-        PostProcGraphHandler
-        self.postproc_graph_loader = PostProcGraphHandler(utils.PathManager.POSTPROC_GRAPHS)
-        # created graphs table
-        self.ui.postproc_graph_table.setRowCount(4)
-        self.ui.postproc_graph_table.setColumnCount(2)
-        fieldnames = ["Graph","Open",]
-        for row, graph in enumerate(self.postproc_graph_loader.graphs):
-            self.ui.postproc_graph_table.setItem(row, 0, QTableWidgetItem(graph))
-            self.ui.postproc_graph_table.setItem(row, 1, QTableWidgetItem())# TODO add open button)) # TODO check
+    # def ppGraphs(self):
+    #     self.redirect_print("creating post-processing graphs")
+    #     self.path_manager.run_command(utils.Command.PP_GRAPHS)
+    #
+    #     PostProcGraphHandler
+    #     self.postproc_graph_loader = PostProcGraphHandler(utils.PathManager.POSTPROC_GRAPHS)
+    #     # created graphs table
+    #     self.ui.postproc_graph_table.setRowCount(4)
+    #     self.ui.postproc_graph_table.setColumnCount(2)
+    #     fieldnames = ["Graph","Open",]
+    #     for row, graph in enumerate(self.postproc_graph_loader.graphs):
+    #         self.ui.postproc_graph_table.setItem(row, 0, QTableWidgetItem(graph))
+    #         self.ui.postproc_graph_table.setItem(row, 1, QTableWidgetItem())# TODO add open button)) # TODO check
 
     # PRIVACY POLICY BUTTONS
 

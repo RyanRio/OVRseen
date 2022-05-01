@@ -6,7 +6,6 @@ from typing import List, Tuple
 
 from network_traffic.traffic_collection.apk_processing import apk_builder
 from network_traffic.traffic_collection.apk_processing import apk_download_utility
-from privacy_policy.network_to_policy_consistency.make_plots import main as make_plots
 from gui import globals
 
 class Command(Enum):
@@ -22,7 +21,7 @@ class Command(Enum):
     ANALYZE_DATA = 8
     CREATE_GRAPHS = 9
     POST_PROCESSING = 10
-    PP_GRAPHS = 11
+    # PP_GRAPHS = 11
 
 class PathManager:
 
@@ -124,10 +123,10 @@ class PathManager:
                 return None
             self.exec(["rm", "-r", "PCAPs/*.csv;", "rm", "-r", "PCAPs/temp_output"])
             self.exec(["python3", "process_pcaps.py", "PCAPs", "."])
-        elif cmd == Command.PP_GRAPHS:
-            if not self.chdir_relative(PathManager.POST_PROCESSING / Path("figs_and_tables")):
-                return None
-            self.exec(["python3", "create_data_for_tables_and_figures.py", "--csv_file_path", "../all-merged-with-esld-engine-privacy-developer-party.csv", "--output_directory", "."])
+        # elif cmd == Command.PP_GRAPHS:
+        #     if not self.chdir_relative(PathManager.POST_PROCESSING / Path("figs_and_tables")):
+        #         return None
+        #     self.exec(["python3", "create_data_for_tables_and_figures.py", "--csv_file_path", "../all-merged-with-esld-engine-privacy-developer-party.csv", "--output_directory", "."])
 
         self.chdir_base()
 
