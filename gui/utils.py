@@ -26,7 +26,7 @@ class PathManager:
 
     PRIVACY_POLICY = Path("privacy_policy")
     NETWORK_TO_POLICY_CONSISTENCY = PRIVACY_POLICY / Path("network-to-privacy_consistency")
-    GRAPHS = NETWORK_TO_POLICY_CONSISTENCY / Path("graphs")
+    GRAPHS = NETWORK_TO_POLICY_CONSISTENCY / Path("ext") / Path("plots")
     PURPOSE_EXTRACTION = PRIVACY_POLICY / Path("purpose_extraction")
 
     def __combine_outputs(self, *outputs: Tuple[str, str]):
@@ -114,7 +114,6 @@ class PathManager:
 
     def __init__(self) -> None:
         self._ovrseen_path = None
-        os.makedirs(GRAPHS, exist_ok=False)
 
     @property
     def ovrseen_path(self):

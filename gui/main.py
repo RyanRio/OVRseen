@@ -50,9 +50,8 @@ class MainWindow(QMainWindow):
         # set up privacy policy buttons
         self.ui.set_up_analysis.clicked.connect(self.setUpAnalysis)
         self.ui.load_collected.clicked.connect(self.loadCollected)
-        self.ui.analyze_create_graphs.clicked.connect(self.analyzeCreateGraphs)
-        self.ui.open_graphs.clicked.connect(self.openGraphs)
-        self.ui.delete_graphs.clicked.connect(self.deleteGraphs)
+        self.ui.analyze_data.clicked.connect(self.analyzeData)
+        self.ui.create_graphs.clicked.connect(self.createGraphs)
 
     def resizeEvent(self, event):
         self.ui.horizontalLayoutWidget.setGeometry(QRect(0, 0, self.width(), self.height()))
@@ -95,11 +94,7 @@ class MainWindow(QMainWindow):
 
         # setup privacy policy analysis paths + loaders
         pppath = self.path_manager.ovrseen_path / PathManager.POST_PROCESSING / "all-merged-with-esld-engine-privacy-developer-party.csv"
-        outpath = self.path_manager.ovrseen_path / PathManager.NETWORK_TO_POLICY_CONSISTENCY
-        self.pp_data_loader = PPDataHandler(pppath,outpath)
-        self.graph_loader = GraphHandler(PathManager.GRAPHS)
-
-        # setup privacy policy tables with loaders
+        self.pp_data_loader = PPDataHandler(pppath)
         # apps data table
         self.ui.app_data_table.setRowCount(self.pp_data_loader.number_of_apps)
         self.ui.app_data_table.setColumnCount(2)
@@ -107,15 +102,6 @@ class MainWindow(QMainWindow):
         for row, app in enumerate(self.pp_data_loader.apps):
             self.ui.app_data_table.setItem(row, 0, QTableWidgetItem(QCheckBox())) # TODO check
             self.ui.app_data_table.setItem(row, 1, QTableWidgetItem(app))
-        # created graphs table
-        self.ui.graph_table.setRowCount(self.graph_loader.number_of_graphs)
-        self.ui.graph_table.setColumnCount(4)
-        fieldnames = ["Selected","Graph File Name","Timestamp","Included Applications"]
-        for row in enumerate(self.pp_data_loader.df):
-            self.ui.graph_table.setItem(row, 0, QTableWidgetItem(QCheckBox())) # TODO check
-            self.ui.graph_table.setItem(row, 1, QTableWidgetItem(#TODO actual data string))
-            self.ui.graph_table.setItem(row, 2, QTableWidgetItem(#TODO actual data string))
-            self.ui.graph_table.setItem(row, 3, QTableWidgetItem(#TODO actual data string))
 
     def closeEvent(self, event: QCloseEvent) -> None:
         print("closed")
@@ -159,18 +145,23 @@ class MainWindow(QMainWindow):
         # TODO
         pass
 
-    def analyzeCreateGraphs(self):
+    def analyzeData(self):
         # TODO
         pass
 
-    def openGraphs(self):
-        # TODO
-        pass
+    def createGraphs(self):
+        # TODO actually run scripts to create graphs
 
-    def deleteGraphs(self):
-        # TODO
-        pass
-
+        self.graph_loader = GraphHandler(PathManager.GRAPHS)
+        # created graphs table
+        self.ui.graph_table.setRowCount(self.graph_loader.number_of_graphs)
+        self.ui.graph_table.setColumnCount(4)
+        fieldnames = ["Selected","Graph File Name",]
+        for row, info in self.graph_loader.df.iterrows:
+            self.ui.graph_table.setItem(row, 0, QTableWidgetItem(QCheckBox())) # TODO check
+            self.ui.graph_table.setItem(row, 1, QTableWidgetItem(row["file_name"]))
+            self.ui.graph_table.setItem(row, 2, QTableWidgetItem(row["timestamp"]))
+            self.ui.graph_table.setItem(row, 3, QTableWidgetItem(row["included_applications"]))
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
