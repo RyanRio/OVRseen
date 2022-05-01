@@ -22,4 +22,5 @@ com.beatgames.beatsaber.demo/
 network_traffic/traffic_collection/apk_processing/all_libs/
 # temporary automation file
 network_traffic/traffic_collection/cert_validation_bypass/current_apk
+network_traffic/traffic_collection/cert_validation_bypass/pcaps
 InstalledAPKs

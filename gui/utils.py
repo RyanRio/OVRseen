@@ -173,7 +173,14 @@ class PathManager:
             self.uninstall_package(pkg_name)
             self.install_apk_to_oculus(frida_apk_path)
         elif cmd == Command.FRIDA_BYPASS:
-            pass
+            if len(args) != 1:
+                return None
+            if not self.chdir_relative(PathManager.CERT_VALIDATION_BYPASS):
+                return None
+            if not Path("unity_so_files").exists():
+                globals.redirect_print_func("make sure unity libraries are installed in the first tab")
+                return None
+            self.exec(["./bypass_all_ssl_pinnings.sh -l unity_so_files -a ../apk_processing/APKs/"])
         # elif cmd == Command.PP_GRAPHS:
         #     if not self.chdir_relative(PathManager.POST_PROCESSING / Path("figs_and_tables")):
         #         return None

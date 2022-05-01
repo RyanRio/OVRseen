@@ -51,7 +51,7 @@ class MainWindow(QMainWindow):
         self.ui.frida_bypass.clicked.connect(self.fridaBypass)
         self.ui.frida_collect.clicked.connect(self.fridaCollect)
         self.ui.frida_collect_uninstall.clicked.connect(self.fridaCollectUninstall)
-        self.ui.frida_reinstall_app.clicked.connect(self.fridaReinstallAPK)
+        self.ui.reinstall_frida_app.clicked.connect(self.fridaReinstallAPK)
         self.ui.frida_instructions.append("""
         In this tab you can collect pcaps using frida to bypass ssl pinnings.
         First you will need to select an app from the left bar to experiment with.
@@ -161,6 +161,15 @@ class MainWindow(QMainWindow):
                 self.redirect_print("apk: ", apk_name, " selected.")
                 self.selectedApk = apk_name
                 self.path_manager.run_command(utils.Command.FRIDA_SELECT_APK, [self.selectedApk])
+                self.ui.frida_instructions.setText(
+                    f"""
+                    You have selected: ${self.selectedApk}. You can perform the following actions:
+                    1. Reupload the frida signed apk.
+                    2. Launch the app and begin collecting pcaps (Collect PCAPs)
+                    3. Download PCAPs from the oculus
+                    4. Download PCAPs from the oculus and uninstall the frida signed apk.
+                    """
+                )
             buttonCallbackWithApk = partial(buttonCallback, apk)
             new_button = QPushButton(apk)
             new_button.clicked.connect(buttonCallbackWithApk)
