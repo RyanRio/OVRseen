@@ -138,30 +138,29 @@ class MainWindow(QMainWindow):
     # PRIVACY POLICY BUTTONS
 
     def setUpAnalysis(self):
-        # TODO
-        pass
+        self.redirect_print("setting up privacy policy analysis")
+        self.path_manager.run_command(utils.Command.SETUP_ANALYSIS)
 
     def loadCollected(self):
-        # TODO
-        pass
+        self.redirect_print("loading collected application traffic data")
+        self.path_manager.run_command(utils.Command.LOAD_COLLECTED)
 
     def analyzeData(self):
-        # TODO
-        pass
+        self.redirect_print("conducting privacy policy analysis")
+        self.path_manager.run_command(utils.Command.ANALYZE_DATA)
 
     def createGraphs(self):
-        # TODO actually run scripts to create graphs
+        self.redirect_print("creating graphs")
+        self.path_manager.run_command(utils.Command.CREATE_GRAPHS)
 
         self.graph_loader = GraphHandler(PathManager.GRAPHS)
         # created graphs table
-        self.ui.graph_table.setRowCount(self.graph_loader.number_of_graphs)
-        self.ui.graph_table.setColumnCount(4)
-        fieldnames = ["Selected","Graph File Name",]
-        for row, info in self.graph_loader.df.iterrows:
-            self.ui.graph_table.setItem(row, 0, QTableWidgetItem(QCheckBox())) # TODO check
-            self.ui.graph_table.setItem(row, 1, QTableWidgetItem(row["file_name"]))
-            self.ui.graph_table.setItem(row, 2, QTableWidgetItem(row["timestamp"]))
-            self.ui.graph_table.setItem(row, 3, QTableWidgetItem(row["included_applications"]))
+        self.ui.graph_table.setRowCount(4)
+        self.ui.graph_table.setColumnCount(2)
+        fieldnames = ["Graph","Open",]
+        for row, graph in enumerate(self.graph_loader.graphs):
+            self.ui.graph_table.setItem(row, 0, QTableWidgetItem(graph))
+            self.ui.graph_table.setItem(row, 1, QTableWidgetItem(# TODO add open button)) # TODO check
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
