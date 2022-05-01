@@ -6,7 +6,7 @@ import pandas
 import datetime
 import os
 
-class GraphHandler:
+class PostProcGraphHandler:
 
     def __init__(self, path: Path) -> None:
         self.path = path

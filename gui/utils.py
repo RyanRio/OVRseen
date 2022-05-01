@@ -31,10 +31,11 @@ class PathManager:
     TRAFFIC_COLLECTION = NETWORK_TRAFFIC / "traffic_collection"
     APK_PROCESSING = TRAFFIC_COLLECTION / "apk_processing"
     CERT_VALIDATION_BYPASS = TRAFFIC_COLLECTION / "cert_validation_bypass"
+    POSTPROC_GRAPHS = POST_PROCESSING / "figs_and_tables"
 
     PRIVACY_POLICY = Path("privacy_policy")
     NETWORK_TO_POLICY_CONSISTENCY = PRIVACY_POLICY / Path("network_to_privacy_consistency")
-    GRAPHS = NETWORK_TO_POLICY_CONSISTENCY / Path("ext") / Path("plots")
+    PRIPOL_GRAPHS = NETWORK_TO_POLICY_CONSISTENCY / Path("ext") / Path("plots")
     PURPOSE_EXTRACTION = PRIVACY_POLICY / Path("purpose_extraction")
 
     def __combine_outputs(self, *outputs: Tuple[str, str]):

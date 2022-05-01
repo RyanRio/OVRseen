@@ -164,7 +164,7 @@ class MainWindow(QMainWindow):
         self.path_manager.run_command(utils.Command.PP_GRAPHS)
 
         PostProcGraphHandler
-        self.postproc_graph_loader = PostProcGraphHandler(utils.PathManager.GRAPHS)
+        self.postproc_graph_loader = PostProcGraphHandler(utils.PathManager.POSTPROC_GRAPHS)
         # created graphs table
         self.ui.postproc_graph_table.setRowCount(4)
         self.ui.postproc_graph_table.setColumnCount(2)
@@ -172,7 +172,7 @@ class MainWindow(QMainWindow):
         for row, graph in enumerate(self.postproc_graph_loader.graphs):
             self.ui.postproc_graph_table.setItem(row, 0, QTableWidgetItem(graph))
             self.ui.postproc_graph_table.setItem(row, 1, QTableWidgetItem())# TODO add open button)) # TODO check
-            
+
     # PRIVACY POLICY BUTTONS
 
     def setUpAnalysis(self):
@@ -197,7 +197,7 @@ class MainWindow(QMainWindow):
         self.redirect_print("creating graphs")
         self.path_manager.run_command(utils.Command.CREATE_GRAPHS)
 
-        self.pripol_graph_loader = PriPolGraphHandler(utils.PathManager.GRAPHS)
+        self.pripol_graph_loader = PriPolGraphHandler(utils.PathManager.PRIPOL_GRAPHS)
         # created graphs table
         self.ui.pripol_graph_table.setRowCount(4)
         self.ui.pripol_graph_table.setColumnCount(2)
