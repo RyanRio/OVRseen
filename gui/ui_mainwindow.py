@@ -182,26 +182,21 @@ class Ui_MainWindow(object):
 
         self.formLayout_2.setWidget(2, QFormLayout.FieldRole, self.unity_so_files)
 
-        self.connect_oculus = QPushButton(self.horizontalLayoutWidget_2)
-        self.connect_oculus.setObjectName(u"connect_oculus")
+        self.app_blacklist = QPushButton(self.horizontalLayoutWidget_2)
+        self.app_blacklist.setObjectName(u"app_blacklist")
 
-        self.formLayout_2.setWidget(3, QFormLayout.FieldRole, self.connect_oculus)
+        self.formLayout_2.setWidget(3, QFormLayout.FieldRole, self.app_blacklist)
+
+        self.pushButton = QPushButton(self.horizontalLayoutWidget_2)
+        self.pushButton.setObjectName(u"pushButton")
+
+        self.formLayout_2.setWidget(4, QFormLayout.FieldRole, self.pushButton)
 
         self.textEdit_2 = QTextEdit(self.horizontalLayoutWidget_2)
         self.textEdit_2.setObjectName(u"textEdit_2")
         self.textEdit_2.setReadOnly(True)
 
-        self.formLayout_2.setWidget(6, QFormLayout.FieldRole, self.textEdit_2)
-
-        self.app_blacklist = QPushButton(self.horizontalLayoutWidget_2)
-        self.app_blacklist.setObjectName(u"app_blacklist")
-
-        self.formLayout_2.setWidget(4, QFormLayout.FieldRole, self.app_blacklist)
-
-        self.pushButton = QPushButton(self.horizontalLayoutWidget_2)
-        self.pushButton.setObjectName(u"pushButton")
-
-        self.formLayout_2.setWidget(5, QFormLayout.FieldRole, self.pushButton)
+        self.formLayout_2.setWidget(5, QFormLayout.FieldRole, self.textEdit_2)
 
 
         self.traffic_collection_layout_internal.addLayout(self.formLayout_2)
@@ -263,6 +258,11 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_7.addWidget(self.reinstall_frida_app)
 
+        self.connect_oculus_wireless = QPushButton(self.horizontalLayoutWidget_5)
+        self.connect_oculus_wireless.setObjectName(u"connect_oculus_wireless")
+
+        self.verticalLayout_7.addWidget(self.connect_oculus_wireless)
+
         self.frida_bypass = QPushButton(self.horizontalLayoutWidget_5)
         self.frida_bypass.setObjectName(u"frida_bypass")
 
@@ -292,6 +292,11 @@ class Ui_MainWindow(object):
         self.frida_shell_log.setObjectName(u"frida_shell_log")
 
         self.verticalLayout_2.addWidget(self.frida_shell_log)
+
+        self.frida_process_pcaps = QPushButton(self.horizontalLayoutWidget_5)
+        self.frida_process_pcaps.setObjectName(u"frida_process_pcaps")
+
+        self.verticalLayout_2.addWidget(self.frida_process_pcaps)
 
 
         self.horizontalLayout_4.addLayout(self.verticalLayout_2)
@@ -421,26 +426,27 @@ class Ui_MainWindow(object):
         self.unity_so_files.setToolTip(QCoreApplication.translate("MainWindow", u"Click this to let the app find your downloaded unity so files, please select the directory of the unity so files zip", None))
 #endif // QT_CONFIG(tooltip)
         self.unity_so_files.setText(QCoreApplication.translate("MainWindow", u"Move Unity Folder", None))
-        self.connect_oculus.setText(QCoreApplication.translate("MainWindow", u"Connect to Oculus", None))
-        self.textEdit_2.setMarkdown(QCoreApplication.translate("MainWindow", u"For additional information follow along with the traffic collection tab on the\n"
-"wiki, however this automates many of the tasks required.\n"
-"\n"
-"", None))
 #if QT_CONFIG(tooltip)
         self.app_blacklist.setToolTip(QCoreApplication.translate("MainWindow", u"Sets the list of apps that won't be used for traffic collection", None))
 #endif // QT_CONFIG(tooltip)
         self.app_blacklist.setText(QCoreApplication.translate("MainWindow", u"Set App Blacklist", None))
         self.pushButton.setText(QCoreApplication.translate("MainWindow", u"Download APKs", None))
+        self.textEdit_2.setMarkdown(QCoreApplication.translate("MainWindow", u"For additional information follow along with the traffic collection tab on the\n"
+"wiki, however this automates many of the tasks required.\n"
+"\n"
+"", None))
         self.label_3.setText(QCoreApplication.translate("MainWindow", u"Shell Log", None))
         self.pushButton_2.setText(QCoreApplication.translate("MainWindow", u"Clear Log", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.a_trafficcollection), QCoreApplication.translate("MainWindow", u"APK Setup", None))
         self.label_7.setText(QCoreApplication.translate("MainWindow", u"Apps To Test (Click to begin testing)", None))
         self.label_9.setText(QCoreApplication.translate("MainWindow", u"Follow The Instructions Below", None))
         self.reinstall_frida_app.setText(QCoreApplication.translate("MainWindow", u"Reupload new Signed APK", None))
+        self.connect_oculus_wireless.setText(QCoreApplication.translate("MainWindow", u"Connect Wirelessly", None))
         self.frida_bypass.setText(QCoreApplication.translate("MainWindow", u"Collect PCAPs", None))
         self.frida_collect.setText(QCoreApplication.translate("MainWindow", u"Download PCAPs from Device", None))
         self.frida_collect_uninstall.setText(QCoreApplication.translate("MainWindow", u"Download PCAPs and Uninstall", None))
         self.label_8.setText(QCoreApplication.translate("MainWindow", u"Shell Log", None))
+        self.frida_process_pcaps.setText(QCoreApplication.translate("MainWindow", u"Process PCAPs", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.d_frida), QCoreApplication.translate("MainWindow", u"Frida", None))
         self.pushButton_3.setText(QCoreApplication.translate("MainWindow", u"PushButton", None))
         self.textEdit_3.setHtml(QCoreApplication.translate("MainWindow", u"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
