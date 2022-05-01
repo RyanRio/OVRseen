@@ -40,14 +40,14 @@ get_package_name()
 # $2 is the keystore password
 # $3 is the path to APK file
 # TODO: Use the following command to have apktool select between aapt and aapt2 (some apps need aapt and some others aapt2).
-python3 apk_builder.py --keystore_pw $2 --apk $3 --inject_frida --downgrade_api --inject_internet_perm
+python3 apk_builder_script.py --keystore_pw $2 --apk $3 --inject_frida --downgrade_api --inject_internet_perm
 #python3 apk_builder.py --keystore_pw $2 --apk $3 --use_aapt2 --inject_frida --downgrade_api --inject_internet_perm
 
 APK_FILE=$(basename $3)
 path="_$APK_FILE"
 echo $APK_FILE
 echo $path
-adb -d install $path
+# adb -d install $path
 # Copy OBB file
 PKG_NAME=$(get_package_name $3)
 # First argument is the path to all OBB files

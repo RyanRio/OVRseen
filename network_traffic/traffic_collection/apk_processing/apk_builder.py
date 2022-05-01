@@ -34,7 +34,7 @@ from termcolor import colored
 from gui import globals
 
 def print_appmon():
-	print("""
+	globals.redirect_print_func("""
 		___      .______   .______   .___  ___.   ______   .__   __. 
 		/   \     |   _  \  |   _  \  |   \/   |  /  __  \  |  \ |  | 
 	/  ^  \    |  |_)  | |  |_)  | |  \  /  | |  |  |  | |   \|  | 
@@ -60,8 +60,6 @@ class ApkBuilder:
 		self.inject_internet_perm = inject_internet_perm
 
 	def run(self):
-		if globals.redirect_print_func is None:
-			globals.redirect_print_func = print
 		print_appmon()
 
 		new_apk_path = ""
@@ -72,8 +70,8 @@ class ApkBuilder:
 		old_android_manifest_header_1 = '<?xml version="1.0" encoding="utf-8" standalone="no"?><manifest xmlns:android="http://schemas.android.com/apk/res/android" android:compileSdkVersion="23" android:compileSdkVersionCodename="6" android:installLocation="auto" package="'
 		old_android_manifest_header_2 = '" platformBuildVersionCode="23" platformBuildVersionName="6">\n'
 
-		if not os.path.isfile(apk_path):
-			globals.redirect_print_func("[E] File doesn't exist: %s\n[*] Quitting!" % (apk_path))
+		if not os.path.isfile(self.apk_path):
+			globals.redirect_print_func("[E] File doesn't exist: %s\n[*] Quitting!" % (self.apk_path))
 			sys.exit(1)
 
 		SMALI_DIRECT_METHODS = """    .method static constructor <clinit>()V
@@ -119,12 +117,12 @@ class ApkBuilder:
 			globals.redirect_print_func("[I] Expanding APK...")
 
 			if self.use_aapt2:
-				apk_dump = subprocess.check_output(["aapt2", "dump", "badging", apk_path]).decode('utf-8')
+				apk_dump = subprocess.check_output(["aapt2", "dump", "badging", self.apk_path]).decode('utf-8')
 			else:
-				apk_dump = subprocess.check_output(["aapt", "dump", "badging", apk_path]).decode('utf-8')
+				apk_dump = subprocess.check_output(["aapt", "dump", "badging", self.apk_path]).decode('utf-8')
 			#uncomment the follwing when installing a VR apk. 
-			apk_xml_tree = subprocess.check_output(["aapt", "dump", "xmltree", apk_path, "AndroidManifest.xml"]).decode('utf-8')
-			apk_permissions = subprocess.check_output(["aapt", "dump", "permissions", apk_path]).decode('utf-8')
+			apk_xml_tree = subprocess.check_output(["aapt", "dump", "xmltree", self.apk_path, "AndroidManifest.xml"]).decode('utf-8')
+			apk_permissions = subprocess.check_output(["aapt", "dump", "permissions", self.apk_path]).decode('utf-8')
 			package_name = apk_dump.split("package: name=")[1].split(" ")[0].strip("'\"\n\t ")
 			app_name = apk_dump.split("application: label='")[1].split("'")[0].strip("'\"\n\t ")
 			manifest_file_path = os.path.join(WORK_DIR, package_name, "AndroidManifest.xml")
@@ -132,7 +130,7 @@ class ApkBuilder:
 			new_apk_path = WORK_DIR + "/" + package_name + ".apk"
 			globals.redirect_print_func("New Apk Path:" + new_apk_path)
 
-			subprocess.call(["cp", apk_path, new_apk_path])
+			subprocess.call(["cp", self.apk_path, new_apk_path])
 			subprocess.call(["apktool", "-f", "--quiet", "decode", new_apk_path])
 			subprocess.call(["mv", package_name, WORK_DIR])
 
@@ -272,7 +270,7 @@ class ApkBuilder:
 				with codecs.open(launchable_activity_path, 'w', 'utf-8') as f:
 					#print renegerated_smali
 					f.write(renegerated_smali)
-					print("\tSuccess: patched smali file " + launchable_activity_path + " for frida-gadget" )
+					globals.redirect_print_func("\tSuccess: patched smali file " + launchable_activity_path + " for frida-gadget" )
 
 
 				# Fix for issue #15 (app starting bug)
@@ -283,9 +281,9 @@ class ApkBuilder:
 					if not os.path.isdir(lib_dir):
 						os.makedirs(lib_dir)
 					unzip_output = subprocess.check_output(["unzip", "lib-" + arc, "-d", lib_dir])
-					print("\tSuccess: Injected libs for frida-gadget with arch " + arc)
+					globals.redirect_print_func("\tSuccess: Injected libs for frida-gadget with arch " + arc)
 
-			print("[I] Building APK")
+			globals.redirect_print_func("[I] Building APK")
 			#shutil.rmtree(os.path.join(WORK_DIR, package_name, "original/META-INF"))
 
 			# Bug fix: apktool uses aapt and it seems that for one APK, aapt throws an error.
@@ -299,50 +297,50 @@ class ApkBuilder:
 			new_apk_path = "%s/%s.apk" % (os.path.join(WORK_DIR, package_name, "dist"), package_name)
 			aligned_apk_path = "%s/%s-zipaligned.apk" % (os.path.join(WORK_DIR, package_name, "dist"), package_name)
 			signed_apk_path = "%s/%s-zipaligned-signed.apk" % (os.path.join(WORK_DIR, package_name, "dist"), package_name)
-			#renamed_apk_path = "%s/%s.apk" % (os.path.join(WORK_DIR, package_name, "dist"), os.path.basename(apk_path).split(".apk")[0] + "-appmon")
-			renamed_apk_path = "%s/%s" % (os.path.join(WORK_DIR, package_name, "dist"), "_" + os.path.basename(apk_path))
-			appmon_apk_path = os.path.join(os.getcwd(), "_" + os.path.basename(apk_path))
+			#renamed_apk_path = "%s/%s.apk" % (os.path.join(WORK_DIR, package_name, "dist"), os.path.basename(self.apk_path).split(".apk")[0] + "-appmon")
+			renamed_apk_path = "%s/%s" % (os.path.join(WORK_DIR, package_name, "dist"), "_" + os.path.basename(self.apk_path))
+			appmon_apk_path = os.path.join(os.getcwd(), "_" + os.path.basename(self.apk_path))
 
-			print("\t" + new_apk_path)
-			print("\t" + aligned_apk_path)
-			print("\t" + appmon_apk_path)
-			print("\t" + renamed_apk_path)
+			globals.redirect_print_func("\t" + new_apk_path)
+			globals.redirect_print_func("\t" + aligned_apk_path)
+			globals.redirect_print_func("\t" + appmon_apk_path)
+			globals.redirect_print_func("\t" + renamed_apk_path)
 
-			print("[I] Aligning APK")
+			globals.redirect_print_func("[I] Aligning APK")
 			subprocess.check_output(["zipalign", "-v", "-p", "4", new_apk_path, aligned_apk_path])
 
 			align_verify = subprocess.check_output(["zipalign", "-v", "-c", "4", aligned_apk_path]).decode('utf-8')
 			align_verify.strip(" \r\n\t")
 			if not "Verification successful" in align_verify:
-				print("\t[E] alignment verification failed")
+				globals.redirect_print_func("\t[E] alignment verification failed")
 			else:
-				print("\t[I] APK alignment verified")
+				globals.redirect_print_func("\t[I] APK alignment verified")
 
 			# 
-			print("[I] Signing APK")
+			globals.redirect_print_func("[I] Signing APK")
 			sign_status = subprocess.check_output(["apksigner", "sign", "--verbose", "--ks", "appmon.keystore", "--ks-pass", \
-				"pass:" + keystore_pw, "--out", signed_apk_path, aligned_apk_path]).decode('utf-8')
-			print("\t" + str(sign_status))
+				"pass:" + self.keystore_pw, "--out", signed_apk_path, aligned_apk_path]).decode('utf-8')
+			globals.redirect_print_func("\t" + str(sign_status))
 			if not "Signed" in sign_status:
-				print("\t[E] APK signing error %s" % (sign_status))
+				globals.redirect_print_func("\t[E] APK signing error %s" % (sign_status))
 
 			
 			sign_verify = subprocess.check_output(["apksigner", "verify", "--verbose", signed_apk_path]).decode('utf-8')
-			print(sign_verify)
+			globals.redirect_print_func(sign_verify)
 			if not "Verified using v1 scheme (JAR signing): true" in sign_verify \
 				and not "Verified using v2 scheme (APK Signature Scheme v2): true" in sign_verify:
-				print(sign_verify)
+				globals.redirect_print_func(sign_verify)
 			else:
-				print("[I] APK signature verified")
+				globals.redirect_print_func("[I] APK signature verified")
 
-			print("[I] Housekeeping")
+			globals.redirect_print_func("[I] Housekeeping")
 			subprocess.call(["mv", signed_apk_path, renamed_apk_path])
 			subprocess.call(["mv", renamed_apk_path, os.getcwd()])
 			subprocess.call(["rm", new_apk_path, aligned_apk_path])
 
 
 			if os.path.isfile(appmon_apk_path):
-				print("[I] Ready: %s" % (appmon_apk_path))
+				globals.redirect_print_func("[I] Ready: %s" % (appmon_apk_path))
 
 		except Exception as e:
 			traceback.print_exc()
@@ -350,6 +348,7 @@ class ApkBuilder:
 
 
 if __name__ == "__main__":
+	# DEPRECATED
 	parser = argparse.ArgumentParser()
 	parser.add_argument('--apk', action='store', dest='apk_path', help='''(absolute) path to APK''', required=True)
 	parser.add_argument('--keystore_pw', action='store', dest='keystore_pw',  help='''keystore password for APK signing''', required=True)
@@ -364,10 +363,10 @@ if __name__ == "__main__":
 	args = parser.parse_args()
 	print(args)
 
-	apk_path = args.apk_path
-	keystore_pw = args.keystore_pw
-	use_aapt2 = args.use_aapt2
+	_apk_path = args.apk_path
+	_keystore_pw = args.keystore_pw
+	_use_aapt2 = args.use_aapt2
 
-	apkbuilder = ApkBuilder(apk_path, keystore_pw, args.inject_frida, use_aapt2, args.downgrade_api, args.inject_internet_perm)
+	apkbuilder = ApkBuilder(_apk_path, _keystore_pw, args.inject_frida, _use_aapt2, args.downgrade_api, args.inject_internet_perm)
 
 

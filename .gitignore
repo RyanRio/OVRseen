@@ -8,6 +8,7 @@ __MACOSX
 virtualenv
 *.csv
 *.apk
+obb/
 _bypass_all_ssl_pinnings.js
 NlpFinalModel.tar.gz
 # network to policy consistency temporary files

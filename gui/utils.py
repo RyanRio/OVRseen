@@ -18,12 +18,20 @@ class Command(Enum):
     MOVE_UNITY_SOS = 4
     APK_BLACKLIST = 5
     APK_DOWNLOAD = 6
+    # policheck
     SETUP_ANALYSIS = 7
     ANALYZE_DATA = 8
     CREATE_GRAPHS = 9
     POST_PROCESSING = 10
     # PP_GRAPHS = 11
+    # frida/testing
+    FRIDA_SELECT_APK = 11
+    FRIDA_REINSTALL_APK = 12
+    FRIDA_BYPASS = 13
+    FRIDA_COLLECT = 14
+    FRIDA_COLLECT_UNINSTALL = 15
 
+    
 class PathManager:
 
     NETWORK_TRAFFIC = Path("network_traffic")
@@ -55,7 +63,10 @@ class PathManager:
                 return None
             if (self._ovrseen_path / PathManager.APK_PROCESSING / "all_libs").exists():
                 globals.redirect_print_func("cleaning old libs")
-                self.exec(["rm -rf all_libs"])
+                shutil.rmtree("all_libs")
+                lib_zips = filter(lambda file: file.startswith("lib-") and file.endswith(".zip") ,os.listdir())
+                for lib in lib_zips:
+                    Path(lib).unlink()
             if (self._ovrseen_path / PathManager.APK_PROCESSING / "appmon.keystore").exists():
                 globals.redirect_print_func("cleaning old keystore")
                 self.exec(["rm appmon.keystore"])
@@ -133,12 +144,71 @@ class PathManager:
                 return None
             self.exec(["rm", "-r", "PCAPs/*.csv;", "rm", "-r", "PCAPs/temp_output"])
             self.exec(["python3", "process_pcaps.py", "PCAPs", "."])
+        elif cmd == Command.FRIDA_SELECT_APK:
+            if len(args) != 1:
+                return None
+            if not self.chdir_relative(PathManager.APK_PROCESSING):
+                return None
+            # first run apk builder
+            globals.redirect_print_func("installing apk if it doesnt exist")
+            apk_file = args[0]
+            frida_apk_path = "_" + apk_file
+            pkg_name = self.get_package_name(frida_apk_path)
+            if len(pkg_name) == 0:
+                # then need to install it
+                self.install_apk_to_oculus(frida_apk_path)
+            else:
+                globals.redirect_print_func("apk is already downloaded onto the oculus")
+            with open(self._ovrseen_path / PathManager.CERT_VALIDATION_BYPASS / "current_apk", "w") as f:
+                f.write(pkg_name)
+        elif cmd == Command.FRIDA_REINSTALL_APK:
+            if len(args) != 1:
+                return None
+            if not self.chdir_relative(PathManager.APK_PROCESSING):
+                return None
+            globals.redirect_print_func("reinstalling and rebuilding frida apk")
+            apk_file = args[0]
+            frida_apk_path = "_" + apk_file
+            pkg_name = self.get_package_name(frida_apk_path)
+            self.uninstall_package(pkg_name)
+            self.install_apk_to_oculus(frida_apk_path)
+        elif cmd == Command.FRIDA_BYPASS:
+            pass
         # elif cmd == Command.PP_GRAPHS:
         #     if not self.chdir_relative(PathManager.POST_PROCESSING / Path("figs_and_tables")):
         #         return None
         #     self.exec(["python3", "create_data_for_tables_and_figures.py", "--csv_file_path", "../all-merged-with-esld-engine-privacy-developer-party.csv", "--output_directory", "."])
 
         self.chdir_base()
+
+    def create_frida_apk(self, apk_path):
+        repackageApk = apk_builder.ApkBuilder(apk_path=apk_path, keystore_pw="password", inject_frida=True, downgrade_api=True, inject_internet_perm=True)
+        repackageApk.run()
+
+    def install_apk_to_oculus(self, apk_path: str):
+        """Takes the frida apk, ie '_' + apk"""
+        if not Path(apk_path).exists():
+            self.create_frida_apk(apk_path.lstrip("_"))
+        self.exec(["adb -d install", apk_path])
+        # copy obb file
+        pkg_name = self.get_package_name(apk_path)
+        if ((Path("APKs/obb/") / pkg_name).exists()):
+            self.exec(["adb -d push APKs/obb/" + pkg_name, "/sdcard/Android/obb/"])
+
+    def get_package_name(self, apk_path):
+        stdout, stderr = self.exec(["aapt dump badging", apk_path])
+        start_ind = 15 # skip package: name =
+        end_ind = stdout.find("' versionCode")
+        pkg_name = stdout[start_ind:end_ind]
+        return pkg_name
+    
+    def has_package(self, apk):
+        stdout, stderr = self.exec(["adb shell pm list packages", apk])
+        return len(stdout) > 0
+    
+    def uninstall_package(self, apk: str):
+        if self.has_package(apk):
+            self.exec(["adb -d uninstall", apk])
 
     def sptb(self, path: Path):
         if self._ovrseen_path is not None:

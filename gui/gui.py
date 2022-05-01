@@ -51,11 +51,15 @@ class MainWindow(QMainWindow):
         self.ui.frida_bypass.clicked.connect(self.fridaBypass)
         self.ui.frida_collect.clicked.connect(self.fridaCollect)
         self.ui.frida_collect_uninstall.clicked.connect(self.fridaCollectUninstall)
+        self.ui.frida_reinstall_app.clicked.connect(self.fridaReinstallAPK)
         self.ui.frida_instructions.append("""
         In this tab you can collect pcaps using frida to bypass ssl pinnings.
         First you will need to select an app from the left bar to experiment with.
         Then you can use the buttons below to collect pcaps.
         """)
+        self.apk_mapping = dict()
+        self.setupFridaList() # in case apks are already populated
+        self.selectedApk = None
 
         # set up post-processing buttons
         # self.ui.post_processing.clicked.connect(self.postProcessing)
@@ -68,8 +72,10 @@ class MainWindow(QMainWindow):
 
     def resizeEvent(self, event):
         self.ui.horizontalLayoutWidget.setGeometry(QRect(0, 0, self.width(), self.height()))
-        self.ui.app_layout_object.setGeometry(QRect(0, 0, self.width() - 20, self.height() - 20))
+        self.ui.app_layout_object.setGeometry(QRect(0, 0, self.width() - 30, self.height() - 30))
         self.ui.horizontalLayoutWidget_2.setGeometry(QRect(0, 0, self.width() - 30, self.height() - 30))
+        self.ui.horizontalLayoutWidget_5.setGeometry(QRect(0, 0, self.width() - 30, self.height() - 30)) # frida
+        self.ui.horizontalLayoutWidget_3.setGeometry(QRect(0, 0, self.width() - 30, self.height() - 30)) # network to policy consistency
         QMainWindow.resizeEvent(self, event)
 
     def redirect_print(self, *args, **kwargs):
@@ -149,13 +155,31 @@ class MainWindow(QMainWindow):
         apks = list(filter(lambda x: x.endswith("apk"), os.listdir((self.path_manager.APK_PROCESSING / "APKs"))))
         self.apk_list = apks
         for apk in apks:
-            self.ui.frida_app_layout.addWidget(QPushButton(apk))
+            if apk in self.apk_mapping:
+                continue
+            def buttonCallback(apk_name):
+                self.redirect_print("apk: ", apk_name, " selected.")
+                self.selectedApk = apk_name
+                self.path_manager.run_command(utils.Command.FRIDA_SELECT_APK, [self.selectedApk])
+            buttonCallbackWithApk = partial(buttonCallback, apk)
+            new_button = QPushButton(apk)
+            new_button.clicked.connect(buttonCallbackWithApk)
+            self.apk_mapping[apk] = new_button
+            self.ui.frida_app_layout.addWidget(new_button)
         
     # FRIDA BUTTONS
 
+    def fridaReinstallAPK(self):
+        if self.selectedApk is None:
+            self.redirect_print("select an apk before trying to reinstall it")
+        else:
+            self.redirect_print("reinstalling the currently selected apk")
+            self.path_manager.run_command(utils.Command.FRIDA_REINSTALL_APK, [self.selectedApk])
+
+
     def fridaBypass(self):
         self.redirect_print("bypassing ssl pinnings")
-        self.path_manager.run_command(utils.Command.FRIDA_BYPASS, self.selected_bypass_app)
+        self.path_manager.run_command(utils.Command.FRIDA_BYPASS, [self.selectedApk])
 
     def fridaCollect(self):
         self.redirect_print("downloading pcaps (without performing post processing")
@@ -165,10 +189,6 @@ class MainWindow(QMainWindow):
         self.redirect_print("downloading pcaps and uninstalling apk for selected app")
         self.path_manager.run_command(utils.Command.FRIDA_COLLECT_AND_UNINSTALL)
         # do something with selected bypass app
-
-    def processPCAPS(self):
-        # the goal of this function is to generate the all-merged-with-esld... file
-        pass
 
     # POST PROCESSING BUTTONS
 
