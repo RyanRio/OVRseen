@@ -1,0 +1,1 @@
+redirect_print_func = None

@@ -4,7 +4,9 @@ import os
 import subprocess
 from typing import List, Tuple
 
-redirect_print_func = None
+from network_traffic.traffic_collection.apk_processing import apk_builder
+from network_traffic.traffic_collection.apk_processing import apk_download_utility
+from gui import globals
 
 class Command(Enum):
     # traffic collection
@@ -44,15 +46,15 @@ class PathManager:
         if cmd == Command.INSTALL_ANTMONITOR:
             return self.exec(["adb", "install", *args])
         elif cmd == Command.CLEAR_ANTMONITOR_DATA:
-            return self.exec(["adb", "shell"])
+            return self.exec(["adb", "shell", "'rm -rf /sdcard/anteater/*'"])
         elif cmd == Command.GET_FRIDA_LIBS:
             if not self.chdir_relative(PathManager.APK_PROCESSING):
                 return None
             if (self._ovrseen_path / PathManager.APK_PROCESSING / "all_libs").exists():
-                redirect_print_func("cleaning old libs")
+                globals.redirect_print_func("cleaning old libs")
                 self.exec(["rm -rf all_libs"])
             if (self._ovrseen_path / PathManager.APK_PROCESSING / "appmon.keystore").exists():
-                redirect_print_func("cleaning old keystore")
+                globals.redirect_print_func("cleaning old keystore")
                 self.exec(["rm appmon.keystore"])
             output_1 = self.exec(["./getlibs.sh"])
             output_2 = self.exec(["keytool", "-genkey", "-v", "-keystore", "appmon.keystore", "-alias", "mykeyaliasname", "-keyalg", "RSA", "-keysize", "2048", "-validity", "10000"], inputs=["password", "password", "a", "a", "a", "a", "a", "a", "y"])
@@ -68,17 +70,24 @@ class PathManager:
                     self.exec(["adb tcpip 5555"])
                     self.exec(["adb connect", ip + ":5555"])
             else:
-                redirect_print_func("connection couldn't be established")
+                globals.redirect_print_func("connection couldn't be established")
         elif cmd == Command.MOVE_UNITY_SOS:
             if not self.chdir_relative(PathManager.CERT_VALIDATION_BYPASS):
                 return None
             stdout, stderr = self.exec(["mv", args[0], "unity_so_files"])
-            redirect_print_func("moved unity_so_files into: ", self.sptb(PathManager.CERT_VALIDATION_BYPASS / "unity_so_files"), "\nmove other unity libs in as needed.")
+            globals.redirect_print_func("moved unity_so_files into: ", self.sptb(PathManager.CERT_VALIDATION_BYPASS / "unity_so_files"), "\nmove other unity libs in as needed.")
         elif cmd == Command.APK_BLACKLIST:
             if not self.chdir_relative(PathManager.APK_PROCESSING):
                 return None
             self.exec(["sudo adb start-server"])
             redirect_print_func("PLEASE confirm the prompt on your oculus as well")
+            globals.redirect_print_func("PLEASE confirm the prompt on your oculus as well")
+            apk_download_utility.run("InstalledAPKs", "APKs")
+        elif cmd == Command.APK_DOWNLOAD:
+            if not self.chdir_relative(PathManager.APK_PROCESSING):
+                return None
+            globals.redirect_print_func("Installing apks that have been installed since creating the blacklist")
+            apk_download_utility.run("InstalledAPKs", "APKs")
         elif cmd = Command.SETUP_ANALYSIS:
             # TODO
             pass
@@ -99,7 +108,11 @@ class PathManager:
             return str((self._ovrseen_path / path).absolute())
 
     def exec(self, args: List[str], inputs: List[str] = None) -> Tuple[str, str]:
-        redirect_print_func("running command: ", " ".join(args))
+        if not self.has_sudoed and "sudo" in " ".join(args):
+            # execute a harmless sudo to provide password
+            result = subprocess.run("sudo -S echo 'setting up sudo'", shell=True, check=False, capture_output=False, input="ovrseen\n", text=True)
+            self.has_sudoed = True
+        globals.redirect_print_func("running command: ", " ".join(args))
         if inputs is None:
             result = subprocess.run(" ".join(args), shell=True, check=False, capture_output=True)
         else:
@@ -107,11 +120,11 @@ class PathManager:
         stdout = result.stdout if type(result.stdout) == str else result.stdout.decode()
         stderr = result.stderr if type(result.stderr) == str else result.stderr.decode()
         if len(stdout) > 0:
-            redirect_print_func("stdout: ")
-            redirect_print_func(stdout)
+            globals.redirect_print_func("stdout: ")
+            globals.redirect_print_func(stdout)
         if len(stderr) > 0:
-            redirect_print_func("stderr: ")
-            redirect_print_func(stderr)
+            globals.redirect_print_func("stderr: ")
+            globals.redirect_print_func(stderr)
         return stdout, stderr
 
     def chdir_relative(self, to: Path):
@@ -119,28 +132,22 @@ class PathManager:
             os.chdir(self._ovrseen_path / to)
             return True
         else:
-            redirect_print_func("WARNING: Set the ovrseen directory in the first tab")
+            globals.redirect_print_func("WARNING: Set the ovrseen directory in the first tab")
             return False
 
     def chdir_base(self):
         if self._ovrseen_path is not None:
             os.chdir(self._ovrseen_path)
         else:
-            redirect_print_func("WARNING: Set the ovrseen directory in the first tab")
+            globals.redirect_print_func("WARNING: Set the ovrseen directory in the first tab")
 
     def __init__(self) -> None:
-        self._ovrseen_path = None
+        self._ovrseen_path = Path(os.path.dirname(__file__)).parent
+        self.has_sudoed = False
 
     @property
     def ovrseen_path(self):
-        if self._ovrseen_path is None:
-            return Path.cwd().absolute()
-        else:
-            return self._ovrseen_path.absolute()
-
-    @ovrseen_path.setter
-    def ovrseen_path(self, value):
-        self._ovrseen_path = Path(value)
+        return self._ovrseen_path.absolute()
 
     def close(self):
         with open("ovrseen_directory.txt", "w") as f:

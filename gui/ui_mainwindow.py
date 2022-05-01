@@ -17,9 +17,10 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QFormLayout, QFrame, QHBoxLayout,
     QHeaderView, QLabel, QLayout, QListWidget,
-    QListWidgetItem, QMainWindow, QMenuBar, QPushButton,
-    QSizePolicy, QStatusBar, QTabWidget, QTableWidget,
-    QTableWidgetItem, QTextEdit, QVBoxLayout, QWidget)
+    QListWidgetItem, QMainWindow, QMenuBar, QPlainTextEdit,
+    QPushButton, QSizePolicy, QStatusBar, QTabWidget,
+    QTableWidget, QTableWidgetItem, QTextEdit, QVBoxLayout,
+    QWidget)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -230,9 +231,96 @@ class Ui_MainWindow(object):
         self.tabWidget.addTab(self.a_trafficcollection, "")
         self.b_post_processing = QWidget()
         self.b_post_processing.setObjectName(u"b_post_processing")
+        self.horizontalLayoutWidget_4 = QWidget(self.b_post_processing)
+        self.horizontalLayoutWidget_4.setObjectName(u"horizontalLayoutWidget_4")
+        self.horizontalLayoutWidget_4.setGeometry(QRect(40, 30, 581, 431))
+        self.horizontalLayout_3 = QHBoxLayout(self.horizontalLayoutWidget_4)
+        self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
+        self.horizontalLayout_3.setContentsMargins(0, 0, 0, 0)
+        self.pushButton_3 = QPushButton(self.horizontalLayoutWidget_4)
+        self.pushButton_3.setObjectName(u"pushButton_3")
+
+        self.horizontalLayout_3.addWidget(self.pushButton_3)
+
+        self.textEdit_3 = QTextEdit(self.horizontalLayoutWidget_4)
+        self.textEdit_3.setObjectName(u"textEdit_3")
+
+        self.horizontalLayout_3.addWidget(self.textEdit_3)
+
         self.tabWidget.addTab(self.b_post_processing, "")
         self.c_privacypolicies = QWidget()
         self.c_privacypolicies.setObjectName(u"c_privacypolicies")
+        self.horizontalLayoutWidget_3 = QWidget(self.c_privacypolicies)
+        self.horizontalLayoutWidget_3.setObjectName(u"horizontalLayoutWidget_3")
+        self.horizontalLayoutWidget_3.setGeometry(QRect(30, 30, 701, 491))
+        self.horizontalLayout_2 = QHBoxLayout(self.horizontalLayoutWidget_3)
+        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
+        self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout_4 = QVBoxLayout()
+        self.verticalLayout_4.setObjectName(u"verticalLayout_4")
+        self.set_up_analysis = QPushButton(self.horizontalLayoutWidget_3)
+        self.set_up_analysis.setObjectName(u"set_up_analysis")
+
+        self.verticalLayout_4.addWidget(self.set_up_analysis)
+
+        self.load_collected = QPushButton(self.horizontalLayoutWidget_3)
+        self.load_collected.setObjectName(u"load_collected")
+
+        self.verticalLayout_4.addWidget(self.load_collected)
+
+        self.analyze_data = QPushButton(self.horizontalLayoutWidget_3)
+        self.analyze_data.setObjectName(u"analyze_data")
+
+        self.verticalLayout_4.addWidget(self.analyze_data)
+
+        self.create_graphs = QPushButton(self.horizontalLayoutWidget_3)
+        self.create_graphs.setObjectName(u"create_graphs")
+
+        self.verticalLayout_4.addWidget(self.create_graphs)
+
+        self.label_4 = QLabel(self.horizontalLayoutWidget_3)
+        self.label_4.setObjectName(u"label_4")
+
+        self.verticalLayout_4.addWidget(self.label_4)
+
+        self.plainTextEdit = QPlainTextEdit(self.horizontalLayoutWidget_3)
+        self.plainTextEdit.setObjectName(u"plainTextEdit")
+
+        self.verticalLayout_4.addWidget(self.plainTextEdit)
+
+
+        self.horizontalLayout_2.addLayout(self.verticalLayout_4)
+
+        self.verticalLayout_5 = QVBoxLayout()
+        self.verticalLayout_5.setObjectName(u"verticalLayout_5")
+        self.label_5 = QLabel(self.horizontalLayoutWidget_3)
+        self.label_5.setObjectName(u"label_5")
+
+        self.verticalLayout_5.addWidget(self.label_5)
+
+        self.listWidget_2 = QListWidget(self.horizontalLayoutWidget_3)
+        self.listWidget_2.setObjectName(u"listWidget_2")
+
+        self.verticalLayout_5.addWidget(self.listWidget_2)
+
+
+        self.horizontalLayout_2.addLayout(self.verticalLayout_5)
+
+        self.verticalLayout_6 = QVBoxLayout()
+        self.verticalLayout_6.setObjectName(u"verticalLayout_6")
+        self.label_6 = QLabel(self.horizontalLayoutWidget_3)
+        self.label_6.setObjectName(u"label_6")
+
+        self.verticalLayout_6.addWidget(self.label_6)
+
+        self.listWidget = QListWidget(self.horizontalLayoutWidget_3)
+        self.listWidget.setObjectName(u"listWidget")
+
+        self.verticalLayout_6.addWidget(self.listWidget)
+
+
+        self.horizontalLayout_2.addLayout(self.verticalLayout_6)
+
         self.tabWidget.addTab(self.c_privacypolicies, "")
         self.d_polisis = QWidget()
         self.d_polisis.setObjectName(u"d_polisis")
@@ -253,7 +341,7 @@ class Ui_MainWindow(object):
         self.load_dataset_file.clicked.connect(MainWindow.loadAppCorpusFile)
         self.set_ovrseen_base_path.clicked.connect(MainWindow.setOVRSeenDirectory)
 
-        self.tabWidget.setCurrentIndex(1)
+        self.tabWidget.setCurrentIndex(3)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -286,7 +374,21 @@ class Ui_MainWindow(object):
         self.label_3.setText(QCoreApplication.translate("MainWindow", u"Shell Log", None))
         self.pushButton_2.setText(QCoreApplication.translate("MainWindow", u"Clear Log", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.a_trafficcollection), QCoreApplication.translate("MainWindow", u"Traffic Collection", None))
+        self.pushButton_3.setText(QCoreApplication.translate("MainWindow", u"PushButton", None))
+        self.textEdit_3.setHtml(QCoreApplication.translate("MainWindow", u"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><meta charset=\"utf-8\" /><style type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'Segoe UI'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Click here to download the required filter lists: <a href=\"https://drive.google.com/uc?id=1rySec21Xx_t_x9T04KCX7W4oGUCtf3tt\"><span style=\" text-decoration: underline; color:#007af4;\">google drive link</span></a></p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Then click &quot;select filter lists&quot; to set up your filters</p></body></html>", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.b_post_processing), QCoreApplication.translate("MainWindow", u"Post Processing", None))
+        self.set_up_analysis.setText(QCoreApplication.translate("MainWindow", u"Set Up Analysis", None))
+        self.load_collected.setText(QCoreApplication.translate("MainWindow", u"Load Collected App Data", None))
+        self.analyze_data.setText(QCoreApplication.translate("MainWindow", u"Analyze App Data", None))
+        self.create_graphs.setText(QCoreApplication.translate("MainWindow", u"Generate Graphs", None))
+        self.label_4.setText(QCoreApplication.translate("MainWindow", u"Shell Log", None))
+        self.label_5.setText(QCoreApplication.translate("MainWindow", u"Apps", None))
+        self.label_6.setText(QCoreApplication.translate("MainWindow", u"Graphs", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.c_privacypolicies), QCoreApplication.translate("MainWindow", u"Privacy Policies", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.d_polisis), QCoreApplication.translate("MainWindow", u"Polisis", None))
     # retranslateUi

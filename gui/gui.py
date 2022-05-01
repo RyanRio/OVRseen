@@ -1,15 +1,16 @@
 from fileinput import filename
 from pathlib import Path
 import sys, io
-from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QTableWidgetItem
+from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QTableWidgetItem, QCheckBox
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import QFile, QRect, QEvent
-from ui_mainwindow import Ui_MainWindow
 
-import utils
-from app_corpus.app_loader import AppLoader
-from app_corpus.postprocessed_data_loader import PPDataHandler
-from app_corpus.graph_loader import GraphHandler
+from gui.app_corpus.graph_loader import GraphHandler
+
+from .ui_mainwindow import Ui_MainWindow
+from . import globals, utils
+from gui.app_corpus.app_loader import AppLoader
+from gui.app_corpus.postprocessed_data_loader import PPDataHandler
 from functools import partial
 
 class MainWindow(QMainWindow):
@@ -43,15 +44,24 @@ class MainWindow(QMainWindow):
         self.ui.connect_oculus.clicked.connect(self.connectOculus)
         self.ui.app_blacklist.clicked.connect(self.setAppBlacklist)
         self.ui.pushButton.clicked.connect(self.downloadAPKs)
-        def __redirect_print_func(value: str):
-            self.ui.textEdit.append(value)
-        utils.redirect_print_func = self.redirect_print
+        globals.redirect_print_func = self.redirect_print
 
         # set up privacy policy buttons
         self.ui.set_up_analysis.clicked.connect(self.setUpAnalysis)
         self.ui.load_collected.clicked.connect(self.loadCollected)
         self.ui.analyze_data.clicked.connect(self.analyzeData)
         self.ui.create_graphs.clicked.connect(self.createGraphs)
+
+        # setup privacy policy analysis paths + loaders
+        pppath = self.path_manager.ovrseen_path / utils.PathManager.POST_PROCESSING / "all-merged-with-esld-engine-privacy-developer-party.csv"
+        self.pp_data_loader = PPDataHandler(pppath)
+        # apps data table
+        self.ui.app_data_table.setRowCount(self.pp_data_loader.number_of_apps)
+        self.ui.app_data_table.setColumnCount(2)
+        fieldnames = ["Selected","App_Title"]
+        for row, app in enumerate(self.pp_data_loader.apps):
+            self.ui.app_data_table.setItem(row, 0, QTableWidgetItem(QCheckBox())) # TODO check
+            self.ui.app_data_table.setItem(row, 1, QTableWidgetItem(app))
 
     def resizeEvent(self, event):
         self.ui.horizontalLayoutWidget.setGeometry(QRect(0, 0, self.width(), self.height()))
@@ -92,17 +102,6 @@ class MainWindow(QMainWindow):
         print(self.path_manager.ovrseen_path)
         self.ui.ovrseen_directory.setText("OVRSeen Directory: " + str(self.path_manager.ovrseen_path))
 
-        # setup privacy policy analysis paths + loaders
-        pppath = self.path_manager.ovrseen_path / PathManager.POST_PROCESSING / "all-merged-with-esld-engine-privacy-developer-party.csv"
-        self.pp_data_loader = PPDataHandler(pppath)
-        # apps data table
-        self.ui.app_data_table.setRowCount(self.pp_data_loader.number_of_apps)
-        self.ui.app_data_table.setColumnCount(2)
-        fieldnames = ["Selected","App_Title"]
-        for row, app in enumerate(self.pp_data_loader.apps):
-            self.ui.app_data_table.setItem(row, 0, QTableWidgetItem(QCheckBox())) # TODO check
-            self.ui.app_data_table.setItem(row, 1, QTableWidgetItem(app))
-
     def closeEvent(self, event: QCloseEvent) -> None:
         print("closed")
         self.app_loader.close()
@@ -130,10 +129,10 @@ class MainWindow(QMainWindow):
         self.path_manager.run_command(utils.Command.ADB_CONNECT_TCP_IP)
 
     def setAppBlacklist(self):
-        pass
+        self.path_manager.run_command(utils.Command.APK_BLACKLIST)
 
     def downloadAPKs(self):
-        pass
+        self.path_manager.run_command(utils.Command.APK_DOWNLOAD)
 
     # PRIVACY POLICY BUTTONS
 
@@ -153,19 +152,11 @@ class MainWindow(QMainWindow):
         self.redirect_print("creating graphs")
         self.path_manager.run_command(utils.Command.CREATE_GRAPHS)
 
-        self.graph_loader = GraphHandler(PathManager.GRAPHS)
+        self.graph_loader = GraphHandler(utils.PathManager.GRAPHS)
         # created graphs table
         self.ui.graph_table.setRowCount(4)
         self.ui.graph_table.setColumnCount(2)
         fieldnames = ["Graph","Open",]
         for row, graph in enumerate(self.graph_loader.graphs):
             self.ui.graph_table.setItem(row, 0, QTableWidgetItem(graph))
-            self.ui.graph_table.setItem(row, 1, QTableWidgetItem(# TODO add open button)) # TODO check
-
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-
-    window = MainWindow()
-    window.show()
-
-    sys.exit(app.exec_())
+            self.ui.graph_table.setItem(row, 1, QTableWidgetItem())# TODO add open button)) # TODO check
