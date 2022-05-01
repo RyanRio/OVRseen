@@ -163,11 +163,15 @@ class MainWindow(QMainWindow):
                 self.path_manager.run_command(utils.Command.FRIDA_SELECT_APK, [self.selectedApk])
                 self.ui.frida_instructions.setText(
                     f"""
-                    You have selected: ${self.selectedApk}. You can perform the following actions:
-                    1. Reupload the frida signed apk.
-                    2. Launch the app and begin collecting pcaps (Collect PCAPs)
-                    3. Download PCAPs from the oculus
-                    4. Download PCAPs from the oculus and uninstall the frida signed apk.
+You have selected: {self.selectedApk}. You can perform the following actions:
+1. Reupload the frida signed apk.
+2. Launch the app and begin collecting pcaps (Collect PCAPs)
+For launching the app, please perform the following steps. First, toggle the antmonitor switch to on.
+Next, open the app in oculus and click through any warnings to get the app to launch. Then, click the "Collect PCAPs button".
+This should allow you to start playing the app (without clicking this button you will see a black screen).
+Finally, close the app, this will resume the gui for further use.
+3. Download PCAPs from the oculus
+4. Download PCAPs from the oculus and uninstall the frida signed apk.
                     """
                 )
             buttonCallbackWithApk = partial(buttonCallback, apk)
@@ -196,7 +200,7 @@ class MainWindow(QMainWindow):
 
     def fridaCollectUninstall(self):
         self.redirect_print("downloading pcaps and uninstalling apk for selected app")
-        self.path_manager.run_command(utils.Command.FRIDA_COLLECT_AND_UNINSTALL)
+        self.path_manager.run_command(utils.Command.FRIDA_COLLECT_UNINSTALL)
         # do something with selected bypass app
 
     # POST PROCESSING BUTTONS

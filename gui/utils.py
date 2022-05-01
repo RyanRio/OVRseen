@@ -181,12 +181,48 @@ class PathManager:
                 globals.redirect_print_func("make sure unity libraries are installed in the first tab")
                 return None
             self.exec(["./bypass_all_ssl_pinnings.sh -l unity_so_files -a ../apk_processing/APKs/"])
+        elif cmd == Command.FRIDA_COLLECT:
+            if not self.chdir_relative(PathManager.CERT_VALIDATION_BYPASS):
+                return None
+            self.collect_frida_pcaps()
+        elif cmd == Command.FRIDA_COLLECT_UNINSTALL:
+            if not self.chdir_relative(PathManager.CERT_VALIDATION_BYPASS):
+                return None
+            self.collect_frida_pcaps(uninstall=True)
         # elif cmd == Command.PP_GRAPHS:
         #     if not self.chdir_relative(PathManager.POST_PROCESSING / Path("figs_and_tables")):
         #         return None
         #     self.exec(["python3", "create_data_for_tables_and_figures.py", "--csv_file_path", "../all-merged-with-esld-engine-privacy-developer-party.csv", "--output_directory", "."])
 
         self.chdir_base()
+    
+    def collect_frida_pcaps(self, uninstall=False):
+        destination = Path("pcaps")
+        if not Path("current_apk").exists():
+            globals.redirect_print_func("no apk is selected yet")
+            return None
+        pkg_name = None
+        with open(Path("current_apk"), "r") as f:
+            pkg_name = f.readline()
+        if pkg_name is None:
+            globals.redirect_print_func("no apk is selected yet")
+            return None
+        globals.redirect_print_func("===> Pulling captured PCAP files...")
+        if not destination.exists():
+            destination.mkdir()
+        self.exec(["adb -d pull /sdcard/antmonitor"])
+        globals.redirect_print_func(f"===> PCAP files are stored in {destination / pkg_name}...")
+        pkg_destination = destination / pkg_name
+        if pkg_destination.exists():
+            shutil.rmtree(pkg_destination)
+        shutil.move("antmonitor", pkg_destination)
+        # delete pcap files on device
+        self.exec(["adb -d shell 'rm -rf /sdcard/antmonitor/*'"])
+        globals.redirect_print_func(f"===> Saving logcat output info into {pkg_destination}...")
+        self.exec([f"adb -d logcat -d > {pkg_destination / 'logcat_output.log'}"])
+        if uninstall:
+            globals.redirect_print_func(f"===> Uninstalling {pkg_name}...")
+            self.exec([f"adb -d uninstall {pkg_name}"])
 
     def create_frida_apk(self, apk_path):
         repackageApk = apk_builder.ApkBuilder(apk_path=apk_path, keystore_pw="password", inject_frida=True, downgrade_api=True, inject_internet_perm=True)
