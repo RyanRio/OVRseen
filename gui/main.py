@@ -1,22 +1,25 @@
 from fileinput import filename
 from pathlib import Path
-import sys
+import sys, io
 from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QTableWidgetItem
 from PySide6.QtGui import QCloseEvent
-from PySide6.QtCore import QFile, QRect
+from PySide6.QtCore import QFile, QRect, QEvent
 from ui_mainwindow import Ui_MainWindow
 
-from utils import PathManager
+import utils
 from app_corpus.app_loader import AppLoader
+from functools import partial
 
 class MainWindow(QMainWindow):
 
     def __init__(self):
+        global redirect_print_func
         super(MainWindow, self).__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-        self.path_manager = PathManager()
+        self.path_manager = utils.PathManager()
         self.app_loader = AppLoader()
+        self.redirect_print_func = None
 
         self.ui.app_list_table.setRowCount(self.app_loader.number_of_apps)
         self.ui.app_list_table.setColumnCount(4)
@@ -30,12 +33,34 @@ class MainWindow(QMainWindow):
             offset += len(app_data_list)
             self.ui.dataset_files.addItem(store.name)
         self.ui.ovrseen_directory.setText("OVRSeen Directory: " + str(self.path_manager.ovrseen_path))
+
+        # set up traffic collection slots
+        self.ui.clear_antmonitor_data.clicked.connect(self.clearAntmonitorData)
+        self.ui.frida_libs.clicked.connect(self.downloadFridaLibs)
+        self.ui.unity_so_files.clicked.connect(self.moveUnityFolder)
+        self.ui.connect_oculus.clicked.connect(self.connectOculus)
+        self.ui.app_blacklist.clicked.connect(self.setAppBlacklist)
+        self.ui.pushButton.clicked.connect(self.downloadAPKs)
+        def __redirect_print_func(value: str):
+            self.ui.textEdit.append(value)
+        utils.redirect_print_func = self.redirect_print
     
     def resizeEvent(self, event):
         self.ui.horizontalLayoutWidget.setGeometry(QRect(0, 0, self.width(), self.height()))
         self.ui.app_layout_object.setGeometry(QRect(0, 0, self.width() - 20, self.height() - 20))
         self.ui.horizontalLayoutWidget_2.setGeometry(QRect(0, 0, self.width() - 30, self.height() - 30))
         QMainWindow.resizeEvent(self, event)
+
+    def redirect_print(self, *args, **kwargs):
+        tab_name = self.ui.tabWidget.currentWidget().objectName()
+        if tab_name == "a_trafficcollection":
+            out = io.StringIO()
+            print(*args, **kwargs, file=out)
+            self.ui.textEdit.append(out.getvalue())
+        else:
+            print(*args, **kwargs)
+
+    # app corpus signals
 
     def loadAppCorpusFile(self):
         fileName, filter = QFileDialog.getOpenFileName(self, dir=str(self.path_manager.ovrseen_path))
@@ -56,12 +81,39 @@ class MainWindow(QMainWindow):
 
     def setOVRSeenDirectory(self):
         self.path_manager.ovrseen_path = QFileDialog.getExistingDirectory(self)
+        print(self.path_manager.ovrseen_path)
         self.ui.ovrseen_directory.setText("OVRSeen Directory: " + str(self.path_manager.ovrseen_path))
 
     def closeEvent(self, event: QCloseEvent) -> None:
         print("closed")
         self.app_loader.close()
         return super().closeEvent(event)
+
+    # TRAFFIC COLLECTION SLOTS
+
+    def clearAntmonitorData(self):
+        self.redirect_print("clearing antmonitor data")
+        stdout, stderr = self.path_manager.run_command(utils.Command.CLEAR_ANTMONITOR_DATA)
+
+    def downloadFridaLibs(self):
+        self.redirect_print("installing frida libs")
+        self.path_manager.run_command(utils.Command.GET_FRIDA_LIBS)
+
+    def moveUnityFolder(self):
+        unity_folder = QFileDialog.getExistingDirectory(self)
+        if len(unity_folder) > 0:
+            self.path_manager.run_command(utils.Command.MOVE_UNITY_SOS, [unity_folder])
+
+
+    def connectOculus(self):
+        self.path_manager.run_command(utils.Command.ADB_CONNECT_TCP_IP)
+
+    def setAppBlacklist(self):
+        pass
+
+    def downloadAPKs(self):
+        pass
+
 
 
 if __name__ == "__main__":
