@@ -25,8 +25,9 @@ class PathManager:
     CERT_VALIDATION_BYPASS = TRAFFIC_COLLECTION / "cert_validation_bypass"
 
     PRIVACY_POLICY = Path("privacy_policy")
-    NETWORK_TO_POLICY_CONSISTENCY = Path("network-to-privacy_consistency")
-    PURPOSE_EXTRACTION = Path("purpose_extraction")
+    NETWORK_TO_POLICY_CONSISTENCY = PRIVACY_POLICY / Path("network-to-privacy_consistency")
+    GRAPHS = NETWORK_TO_POLICY_CONSISTENCY / Path("graphs")
+    PURPOSE_EXTRACTION = PRIVACY_POLICY / Path("purpose_extraction")
 
     def __combine_outputs(self, *outputs: Tuple[str, str]):
         sum_stdout = ""
@@ -74,7 +75,7 @@ class PathManager:
                 return None
             self.exec(["sudo adb start-server"])
             redirect_print_func("PLEASE confirm the prompt on your oculus as well")
-            
+
         self.chdir_base()
 
     def sptb(self, path: Path):
@@ -104,7 +105,7 @@ class PathManager:
         else:
             redirect_print_func("WARNING: Set the ovrseen directory in the first tab")
             return False
-    
+
     def chdir_base(self):
         if self._ovrseen_path is not None:
             os.chdir(self._ovrseen_path)
@@ -113,7 +114,8 @@ class PathManager:
 
     def __init__(self) -> None:
         self._ovrseen_path = None
-    
+        os.makedirs(GRAPHS, exist_ok=False)
+
     @property
     def ovrseen_path(self):
         if self._ovrseen_path is None:
@@ -124,9 +126,8 @@ class PathManager:
     @ovrseen_path.setter
     def ovrseen_path(self, value):
         self._ovrseen_path = Path(value)
-    
+
     def close(self):
         with open("ovrseen_directory.txt", "w") as f:
             if self._ovrseen_path is not None:
                 f.write(str(self._ovrseen_path.absolute()))
-    
