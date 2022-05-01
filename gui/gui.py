@@ -4,10 +4,10 @@ import sys, io
 from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QTableWidgetItem
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import QFile, QRect, QEvent
-from ui_mainwindow import Ui_MainWindow
 
-import utils
-from app_corpus.app_loader import AppLoader
+from .ui_mainwindow import Ui_MainWindow
+from . import globals, utils
+from gui.app_corpus.app_loader import AppLoader
 from functools import partial
 
 class MainWindow(QMainWindow):
@@ -41,9 +41,7 @@ class MainWindow(QMainWindow):
         self.ui.connect_oculus.clicked.connect(self.connectOculus)
         self.ui.app_blacklist.clicked.connect(self.setAppBlacklist)
         self.ui.pushButton.clicked.connect(self.downloadAPKs)
-        def __redirect_print_func(value: str):
-            self.ui.textEdit.append(value)
-        utils.redirect_print_func = self.redirect_print
+        globals.redirect_print_func = self.redirect_print
     
     def resizeEvent(self, event):
         self.ui.horizontalLayoutWidget.setGeometry(QRect(0, 0, self.width(), self.height()))
@@ -109,17 +107,7 @@ class MainWindow(QMainWindow):
         self.path_manager.run_command(utils.Command.ADB_CONNECT_TCP_IP)
 
     def setAppBlacklist(self):
-        pass
+        self.path_manager.run_command(utils.Command.APK_BLACKLIST)
 
     def downloadAPKs(self):
-        pass
-
-
-
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-
-    window = MainWindow()
-    window.show()
-
-    sys.exit(app.exec_())
+        self.path_manager.run_command(utils.Command.APK_DOWNLOAD)

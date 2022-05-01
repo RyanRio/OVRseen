@@ -12,6 +12,8 @@ import os
 import re
 import subprocess
 
+from gui import globals
+
 
 COL_APP_NAME = 'app_name'
 COL_PACKAGE_NAME = 'pkg_name'
@@ -35,7 +37,7 @@ def write_installed_apk(info_file):
     # Write the list into a file
     file = open(info_file, 'w')
     for apk in apk_list:
-        print(f"[+] Adding {apk} into {info_file}...")
+        globals.redirect_print_func(f"[+] Adding {apk} into {info_file}...")
         file.write(apk + '\n')
     file.close()
 
@@ -61,31 +63,31 @@ def download_new_apk(info_file, apk_dir):
                 # Create the directory if it doesn't exist
                 command = "mkdir " + apk_dir
                 output = subprocess.check_output(command, shell = True)
-                print(f"[+] Created new directory {apk_dir}/...")
+                globals.redirect_print_func(f"[+] Created new directory {apk_dir}/...")
             # Use the path to download the APK if the APK hasn't been downloaded yet
             if not os.path.isfile(apk_dir + "/" + apk + ".apk"):
                 command = "adb -d pull " + apk_path + " " + apk_dir + "/"
                 output = subprocess.check_output(command, shell = True)
-                print(f"[+] Downloaded {apk_path}...")
+                globals.redirect_print_func(f"[+] Downloaded {apk_path}...")
                 # Renaming the APK into package name
                 command = "mv " + apk_dir + "/base.apk " + apk_dir + "/" + apk + ".apk"
                 output = subprocess.check_output(command, shell = True)
-                print(f"[+] Renamed APK file into {apk_dir}/{apk}.apk...")
+                globals.redirect_print_func(f"[+] Renamed APK file into {apk_dir}/{apk}.apk...")
                 command = "aapt dump badging " + apk_dir + "/" + apk + ".apk"
                 output = subprocess.check_output(command, shell = True)
                 app_name = output.decode('utf-8').split("application: label='")[1].split("'")[0].strip("'\"\n\t ")
                 csv_row = { COL_APP_NAME:app_name, 
                             COL_PACKAGE_NAME:apk }
                 csv_rows.append(csv_row)
-                print(f"[+] Saved app {app_name} into CSV file...")
+                globals.redirect_print_func(f"[+] Saved app {app_name} into CSV file...")
             else:
-                print(f"[-] " + apk_dir + "/" + apk + ".apk has previously been downloaded...")
+                globals.redirect_print_func(f"[-] " + apk_dir + "/" + apk + ".apk has previously been downloaded...")
             # Download the OBB file also if it hasn't been downloaded
             if not os.path.exists(apk_dir + "/obb/"):
                  # Create the directory if it doesn't exist
                 command = "mkdir " + apk_dir + "/obb/"
                 output = subprocess.check_output(command, shell = True)
-                print(f"[+] Created new directory {apk_dir}/obb/...")               
+                globals.redirect_print_func(f"[+] Created new directory {apk_dir}/obb/...")               
             if not os.path.exists(apk_dir + "/obb/" + apk):
                 command = "adb -d shell ls /sdcard/Android/obb/"
                 output = subprocess.check_output(command, shell = True)
@@ -93,17 +95,17 @@ def download_new_apk(info_file, apk_dir):
                 if output.decode('utf-8').find(apk) != -1:
                     command = "adb -d pull /sdcard/Android/obb/" + apk + " " + apk_dir + "/obb/"
                     output = subprocess.check_output(command, shell = True)
-                    print(f"[+] Downloaded OBB file into {apk_dir}/obb/{apk}/...")
+                    globals.redirect_print_func(f"[+] Downloaded OBB file into {apk_dir}/obb/{apk}/...")
                 else:
-                    print("[-] No OBB file found for " + apk)
+                    globals.redirect_print_func("[-] No OBB file found for " + apk)
             else:
-                print(f"[-] " + apk_dir + "/obb/" + apk + " has previously been downloaded...")
+                globals.redirect_print_func(f"[-] " + apk_dir + "/obb/" + apk + " has previously been downloaded...")
             # Uninstall the app from the device
             command = "adb -d uninstall " + apk
             output = subprocess.check_output(command, shell = True)
-            print(f"[+] Uninstalled app {apk}...")           
+            globals.redirect_print_func(f"[+] Uninstalled app {apk}...")           
             # New line
-            print("\n")
+            globals.redirect_print_func("\n")
     # Save everything into a CSV file
     save_into_csv(csv_rows)
 
@@ -117,7 +119,21 @@ def save_into_csv(csv_rows):
         csv_writer.writeheader()
         for row in csv_rows:
             csv_writer.writerow(row)
-
+    
+def run(installed_apk_info: str, apk_dir: str):
+    if globals.redirect_print_func is None:
+        globals.redirect_print_func = print
+    # Check if installed_apk_info has already existed (if so, then we will download the new APKs)
+    if not os.path.isfile(installed_apk_info):
+        globals.redirect_print_func("[.] Creating a new installed APK info file...")
+        write_installed_apk(installed_apk_info)
+    else:
+        if apk_dir != None:
+            globals.redirect_print_func("[.] Installed APK info file exists...")
+            globals.redirect_print_func("[.] Downloading newly installed APK files now...\n")
+            download_new_apk(installed_apk_info, apk_dir)
+        else:
+            globals.redirect_print_func(f"[.] Installed APK info file {installed_apk_info} already exists...")
 
 if __name__ == "__main__":
     parser = ArgumentParser()
@@ -125,16 +141,5 @@ if __name__ == "__main__":
     parser.add_argument("--apk_dir", type=str, help="path to directory that will contain downloaded APK files")
     args = parser.parse_args()
     info_file = args.installed_apk_info
+    run(info_file, args.apk_dir)
 
-    # Check if installed_apk_info has already existed (if so, then we will download the new APKs)
-    if not os.path.isfile(info_file):
-        print("[.] Creating a new installed APK info file...")
-        write_installed_apk(info_file)
-    else:
-        if args.apk_dir != None:
-            apk_dir = args.apk_dir
-            print("[.] Installed APK info file exists...")
-            print("[.] Downloading newly installed APK files now...\n")
-            download_new_apk(info_file, apk_dir)
-        else:
-            print(f"[.] Installed APK info file {info_file} already exists...")
