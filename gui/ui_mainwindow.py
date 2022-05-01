@@ -258,6 +258,11 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_7.addWidget(self.frida_instructions)
 
+        self.reinstall_frida_app = QPushButton(self.horizontalLayoutWidget_5)
+        self.reinstall_frida_app.setObjectName(u"reinstall_frida_app")
+
+        self.verticalLayout_7.addWidget(self.reinstall_frida_app)
+
         self.frida_bypass = QPushButton(self.horizontalLayoutWidget_5)
         self.frida_bypass.setObjectName(u"frida_bypass")
 
@@ -431,6 +436,7 @@ class Ui_MainWindow(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.a_trafficcollection), QCoreApplication.translate("MainWindow", u"APK Setup", None))
         self.label_7.setText(QCoreApplication.translate("MainWindow", u"Apps To Test (Click to begin testing)", None))
         self.label_9.setText(QCoreApplication.translate("MainWindow", u"Follow The Instructions Below", None))
+        self.reinstall_frida_app.setText(QCoreApplication.translate("MainWindow", u"Reupload new Signed APK", None))
         self.frida_bypass.setText(QCoreApplication.translate("MainWindow", u"App is Launched", None))
         self.frida_collect.setText(QCoreApplication.translate("MainWindow", u"Close App", None))
         self.frida_collect_uninstall.setText(QCoreApplication.translate("MainWindow", u"Close App (And Uninstall)", None))
