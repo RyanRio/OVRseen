@@ -48,20 +48,8 @@ class MainWindow(QMainWindow):
 
         # set up privacy policy buttons
         self.ui.set_up_analysis.clicked.connect(self.setUpAnalysis)
-        self.ui.load_collected.clicked.connect(self.loadCollected)
         self.ui.analyze_data.clicked.connect(self.analyzeData)
         self.ui.create_graphs.clicked.connect(self.createGraphs)
-
-        # setup privacy policy analysis paths + loaders
-        pppath = self.path_manager.ovrseen_path / utils.PathManager.POST_PROCESSING / "all-merged-with-esld-engine-privacy-developer-party.csv"
-        self.pp_data_loader = PPDataHandler(pppath)
-        # apps data table
-        self.ui.app_data_table.setRowCount(self.pp_data_loader.number_of_apps)
-        self.ui.app_data_table.setColumnCount(2)
-        fieldnames = ["Selected","App_Title"]
-        for row, app in enumerate(self.pp_data_loader.apps):
-            self.ui.app_data_table.setItem(row, 0, QTableWidgetItem(QCheckBox())) # TODO check
-            self.ui.app_data_table.setItem(row, 1, QTableWidgetItem(app))
 
     def resizeEvent(self, event):
         self.ui.horizontalLayoutWidget.setGeometry(QRect(0, 0, self.width(), self.height()))
@@ -140,9 +128,15 @@ class MainWindow(QMainWindow):
         self.redirect_print("setting up privacy policy analysis")
         self.path_manager.run_command(utils.Command.SETUP_ANALYSIS)
 
-    def loadCollected(self):
-        self.redirect_print("loading collected application traffic data")
-        self.path_manager.run_command(utils.Command.LOAD_COLLECTED)
+        # setup privacy policy analysis paths + loaders
+        pppath = self.path_manager.ovrseen_path / utils.PathManager.POST_PROCESSING / "all-merged-with-esld-engine-privacy-developer-party.csv"
+        self.pp_data_loader = PPDataHandler(pppath)
+        # apps data table
+        self.ui.app_data_table.setRowCount(self.pp_data_loader.number_of_apps)
+        self.ui.app_data_table.setColumnCount(2)
+        fieldnames = ["App_Title"]
+        for row, app in enumerate(self.pp_data_loader.apps):
+            self.ui.app_data_table.setItem(row, 0, QTableWidgetItem(app))
 
     def analyzeData(self):
         self.redirect_print("conducting privacy policy analysis")

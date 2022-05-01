@@ -6,6 +6,7 @@ from typing import List, Tuple
 
 from network_traffic.traffic_collection.apk_processing import apk_builder
 from network_traffic.traffic_collection.apk_processing import apk_download_utility
+from privacy_policy.network_to_policy_consistency.make_plots import main as make_plots
 from gui import globals
 
 class Command(Enum):
@@ -18,9 +19,8 @@ class Command(Enum):
     APK_BLACKLIST = 5
     APK_DOWNLOAD = 6
     SETUP_ANALYSIS = 7
-    LOAD_COLLECTED = 8
-    ANALYZE_DATA = 9
-    CREATE_GRAPHS = 10
+    ANALYZE_DATA = 8
+    CREATE_GRAPHS = 9
 
 class PathManager:
 
@@ -31,7 +31,7 @@ class PathManager:
     CERT_VALIDATION_BYPASS = TRAFFIC_COLLECTION / "cert_validation_bypass"
 
     PRIVACY_POLICY = Path("privacy_policy")
-    NETWORK_TO_POLICY_CONSISTENCY = PRIVACY_POLICY / Path("network-to-privacy_consistency")
+    NETWORK_TO_POLICY_CONSISTENCY = PRIVACY_POLICY / Path("network_to_privacy_consistency")
     GRAPHS = NETWORK_TO_POLICY_CONSISTENCY / Path("ext") / Path("plots")
     PURPOSE_EXTRACTION = PRIVACY_POLICY / Path("purpose_extraction")
 
@@ -88,18 +88,35 @@ class PathManager:
                 return None
             globals.redirect_print_func("Installing apks that have been installed since creating the blacklist")
             apk_download_utility.run("InstalledAPKs", "APKs")
-        elif cmd = Command.SETUP_ANALYSIS:
-            # TODO
-            pass
-        elif cmd = Command.LOAD_COLLECTED:
-            # TODO
-            pass
-        elif cmd = Command.ANALYZE_DATA:
-            # TODO
-            pass
-        elif cmd = Command.CREATE_GRAPHS:
-            # TODO
-            pass
+        elif cmd == Command.SETUP_ANALYSIS:
+            if not self.chdir_relative(PathManager.NETWORK_TO_POLICY_CONSISTENCY):
+                return None
+            os.makedirs("ext", exist_ok=True)
+            os.makedirs("ext/data", exist_ok=True)
+            self.exec(["cp", "ontology/*.{gml,yml}", "ext/data/"])
+            self.exec(["python3", "process_zipped_policies.py", "privacy_policies", "ext/html_policies"])
+            self.exec(["cp", "../../network_traffic/post-processing/all-merged-with-esld-engine-privacy-developer-party.csv", "."])
+            self.exec(["python3", "preprocess_policheck_flows.py", "all-merged-with-esld-engine-privacy-developer-party.csv", "ext/data/policheck_flows.csv"])
+        elif cmd == Command.ANALYZE_DATA:
+            if not self.chdir_relative(PathManager.NETWORK_TO_POLICY_CONSISTENCY):
+                return None
+            self.exec(["python3", "Preprocessor.py", "-i", "ext/html_policies", "-o", "ext/plaintext_policies"])
+            self.exec(["awk", "-F,", "'NR", ">", "1", "{", "print", "$1", "}'", "ext/data/policheck_flows.csv", "|", "sort", "-u", "|", "xargs", "-i", "touch", "ext/plaintext_policies/{}.txt"])
+            self.exec(["python3", "PatternExtractionNotebook.py", "ext/"])
+            self.exec(["python3", "CollectFirstPartyNames.py", "ext/"])
+            self.exec(["cp", "-r", "ext/", "ext2/"])
+            self.exec(["python3", "detect_third_party_policies.py", "ext/"])
+            self.exec(["python3", "ConsistencyAnalysis.py", "ext/"])
+            self.exec(["python3", "RemoveSameSentenceContradictions.py", "ext/"])
+            self.exec(["python3", "DisclosureClassification.py", "ext/"])
+            self.exec(["python3", "detect_third_party_policies.py", "ext2/", "append"])
+            self.exec(["python3", "ConsistencyAnalysis.py", "ext2/"])
+            self.exec(["python3", "RemoveSameSentenceContradictions.py", "ext2/"])
+            self.exec(["python3", "DisclosureClassification.py", "ext2/"])
+        elif cmd == Command.CREATE_GRAPHS:
+            if not self.chdir_relative(PathManager.NETWORK_TO_POLICY_CONSISTENCY):
+                return None
+            self.exec(["python3", "make_plots.py", "ext/", "ext2/"])
 
         self.chdir_base()
 
