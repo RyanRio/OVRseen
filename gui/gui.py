@@ -5,7 +5,8 @@ from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QTableWidg
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import QFile, QRect, QEvent
 
-from gui.app_corpus.graph_loader import GraphHandler
+from gui.app_corpus.pripol_graph_loader import PriPolPriPolGraphHandler
+from gui.app_corpus.postproc_graph_loader import PostProcGraphHandler
 
 from .ui_mainwindow import Ui_MainWindow
 from . import globals, utils
@@ -45,6 +46,10 @@ class MainWindow(QMainWindow):
         self.ui.app_blacklist.clicked.connect(self.setAppBlacklist)
         self.ui.pushButton.clicked.connect(self.downloadAPKs)
         globals.redirect_print_func = self.redirect_print
+
+        # set up post-processing buttons
+        self.ui.post_processing.clicked.connect(self.postProcessing)
+        self.ui.pp_graphs.clicked.connect(self.ppGraphs)
 
         # set up privacy policy buttons
         self.ui.set_up_analysis.clicked.connect(self.setUpAnalysis)
@@ -129,15 +134,34 @@ class MainWindow(QMainWindow):
 
     def downloadAPKs(self):
         self.path_manager.run_command(utils.Command.APK_DOWNLOAD)
-
         # now check apk folder to add to frida apps
         self.setupFridaList()
-    
+
     def setupFridaList(self):
         apks = list(filter(lambda x: x.endswith("apk"), os.listdir((self.path_manager.APK_PROCESSING / "APKs"))))
         for apk in apks:
             self.ui.frida_app_layout.addWidget(QPushButton(apk))
 
+    # POST PROCESSING BUTTONS
+
+    def postProcessing(self):
+        self.redirect_print("running post-processing")
+        self.path_manager.run_command(utils.Command.POST_PROCESSING)
+
+    def ppGraphs(self):
+        self.redirect_print("creating post-processing graphs")
+        self.path_manager.run_command(utils.Command.PP_GRAPHS)
+
+        PostProcGraphHandler
+        self.postproc_graph_loader = PostProcGraphHandler(utils.PathManager.GRAPHS)
+        # created graphs table
+        self.ui.postproc_graph_table.setRowCount(4)
+        self.ui.postproc_graph_table.setColumnCount(2)
+        fieldnames = ["Graph","Open",]
+        for row, graph in enumerate(self.postproc_graph_loader.graphs):
+            self.ui.postproc_graph_table.setItem(row, 0, QTableWidgetItem(graph))
+            self.ui.postproc_graph_table.setItem(row, 1, QTableWidgetItem())# TODO add open button)) # TODO check
+            
     # PRIVACY POLICY BUTTONS
 
     def setUpAnalysis(self):
@@ -162,11 +186,11 @@ class MainWindow(QMainWindow):
         self.redirect_print("creating graphs")
         self.path_manager.run_command(utils.Command.CREATE_GRAPHS)
 
-        self.graph_loader = GraphHandler(utils.PathManager.GRAPHS)
+        self.pripol_graph_loader = PriPolGraphHandler(utils.PathManager.GRAPHS)
         # created graphs table
-        self.ui.graph_table.setRowCount(4)
-        self.ui.graph_table.setColumnCount(2)
+        self.ui.pripol_graph_table.setRowCount(4)
+        self.ui.pripol_graph_table.setColumnCount(2)
         fieldnames = ["Graph","Open",]
-        for row, graph in enumerate(self.graph_loader.graphs):
-            self.ui.graph_table.setItem(row, 0, QTableWidgetItem(graph))
-            self.ui.graph_table.setItem(row, 1, QTableWidgetItem())# TODO add open button)) # TODO check
+        for row, graph in enumerate(self.pripol_graph_loader.graphs):
+            self.ui.pripol_graph_table.setItem(row, 0, QTableWidgetItem(graph))
+            self.ui.pripol_graph_table.setItem(row, 1, QTableWidgetItem())# TODO add open button)) # TODO check

@@ -21,6 +21,8 @@ class Command(Enum):
     SETUP_ANALYSIS = 7
     ANALYZE_DATA = 8
     CREATE_GRAPHS = 9
+    POST_PROCESSING = 10
+    PP_GRAPHS = 11
 
 class PathManager:
 
@@ -116,6 +118,15 @@ class PathManager:
             if not self.chdir_relative(PathManager.NETWORK_TO_POLICY_CONSISTENCY):
                 return None
             self.exec(["python3", "make_plots.py", "ext/", "ext2/"])
+        elif cmd == Command.POST_PROCESSING:
+            if not self.chdir_relative(PathManager.POST_PROCESSING):
+                return None
+            self.exec(["rm", "-r", "PCAPs/*.csv;", "rm", "-r", "PCAPs/temp_output"])
+            self.exec(["python3", "process_pcaps.py", "PCAPs", "."])
+        elif cmd == Command.PP_GRAPHS:
+            if not self.chdir_relative(PathManager.POST_PROCESSING / Path("figs_and_tables")):
+                return None
+            self.exec(["python3", "create_data_for_tables_and_figures.py", "--csv_file_path", "../all-merged-with-esld-engine-privacy-developer-party.csv", "--output_directory", "."])
 
         self.chdir_base()
 
