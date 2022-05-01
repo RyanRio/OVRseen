@@ -52,6 +52,17 @@ class MainWindow(QMainWindow):
         self.ui.analyze_data.clicked.connect(self.analyzeData)
         self.ui.create_graphs.clicked.connect(self.createGraphs)
 
+        # setup privacy policy analysis paths + loaders
+        pppath = self.path_manager.ovrseen_path / utils.PathManager.POST_PROCESSING / "all-merged-with-esld-engine-privacy-developer-party.csv"
+        self.pp_data_loader = PPDataHandler(pppath)
+        # apps data table
+        self.ui.app_data_table.setRowCount(self.pp_data_loader.number_of_apps)
+        self.ui.app_data_table.setColumnCount(2)
+        fieldnames = ["Selected","App_Title"]
+        for row, app in enumerate(self.pp_data_loader.apps):
+            self.ui.app_data_table.setItem(row, 0, QTableWidgetItem(QCheckBox())) # TODO check
+            self.ui.app_data_table.setItem(row, 1, QTableWidgetItem(app))
+
     def resizeEvent(self, event):
         self.ui.horizontalLayoutWidget.setGeometry(QRect(0, 0, self.width(), self.height()))
         self.ui.app_layout_object.setGeometry(QRect(0, 0, self.width() - 20, self.height() - 20))
@@ -90,17 +101,6 @@ class MainWindow(QMainWindow):
         self.path_manager.ovrseen_path = QFileDialog.getExistingDirectory(self)
         print(self.path_manager.ovrseen_path)
         self.ui.ovrseen_directory.setText("OVRSeen Directory: " + str(self.path_manager.ovrseen_path))
-
-        # setup privacy policy analysis paths + loaders
-        pppath = self.path_manager.ovrseen_path / utils.PathManager.POST_PROCESSING / "all-merged-with-esld-engine-privacy-developer-party.csv"
-        self.pp_data_loader = PPDataHandler(pppath)
-        # apps data table
-        self.ui.app_data_table.setRowCount(self.pp_data_loader.number_of_apps)
-        self.ui.app_data_table.setColumnCount(2)
-        fieldnames = ["Selected","App_Title"]
-        for row, app in enumerate(self.pp_data_loader.apps):
-            self.ui.app_data_table.setItem(row, 0, QTableWidgetItem(QCheckBox())) # TODO check
-            self.ui.app_data_table.setItem(row, 1, QTableWidgetItem(app))
 
     def closeEvent(self, event: QCloseEvent) -> None:
         print("closed")
