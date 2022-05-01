@@ -51,7 +51,7 @@
         <enum>QTabWidget::East</enum>
        </property>
        <property name="currentIndex">
-        <number>4</number>
+        <number>2</number>
        </property>
        <property name="tabsClosable">
         <bool>false</bool>
@@ -410,7 +410,7 @@ wiki, however this automates many of the tasks required.
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_4">
+             <widget class="QPushButton" name="frida_collect_uninstall">
               <property name="text">
                <string>Close App (And Uninstall)</string>
               </property>

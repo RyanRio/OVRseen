@@ -268,10 +268,10 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_7.addWidget(self.frida_collect)
 
-        self.pushButton_4 = QPushButton(self.horizontalLayoutWidget_5)
-        self.pushButton_4.setObjectName(u"pushButton_4")
+        self.frida_collect_uninstall = QPushButton(self.horizontalLayoutWidget_5)
+        self.frida_collect_uninstall.setObjectName(u"frida_collect_uninstall")
 
-        self.verticalLayout_7.addWidget(self.pushButton_4)
+        self.verticalLayout_7.addWidget(self.frida_collect_uninstall)
 
 
         self.horizontalLayout_4.addLayout(self.verticalLayout_7)
@@ -396,7 +396,7 @@ class Ui_MainWindow(object):
         self.load_dataset_file.clicked.connect(MainWindow.loadAppCorpusFile)
         self.set_ovrseen_base_path.clicked.connect(MainWindow.setOVRSeenDirectory)
 
-        self.tabWidget.setCurrentIndex(4)
+        self.tabWidget.setCurrentIndex(2)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -433,7 +433,7 @@ class Ui_MainWindow(object):
         self.label_9.setText(QCoreApplication.translate("MainWindow", u"Follow The Instructions Below", None))
         self.frida_bypass.setText(QCoreApplication.translate("MainWindow", u"App is Launched", None))
         self.frida_collect.setText(QCoreApplication.translate("MainWindow", u"Close App", None))
-        self.pushButton_4.setText(QCoreApplication.translate("MainWindow", u"Close App (And Uninstall)", None))
+        self.frida_collect_uninstall.setText(QCoreApplication.translate("MainWindow", u"Close App (And Uninstall)", None))
         self.label_8.setText(QCoreApplication.translate("MainWindow", u"Shell Log", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.d_frida), QCoreApplication.translate("MainWindow", u"Frida", None))
         self.pushButton_3.setText(QCoreApplication.translate("MainWindow", u"PushButton", None))
