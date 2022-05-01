@@ -356,7 +356,7 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_5.addWidget(self.label_5)
 
-        self.privacy_policies_app_list = QListWidget(self.horizontalLayoutWidget_3)
+        self.privacy_policies_app_list = QTableWidget(self.horizontalLayoutWidget_3)
         self.privacy_policies_app_list.setObjectName(u"privacy_policies_app_list")
 
         self.verticalLayout_5.addWidget(self.privacy_policies_app_list)
@@ -396,7 +396,7 @@ class Ui_MainWindow(object):
         self.load_dataset_file.clicked.connect(MainWindow.loadAppCorpusFile)
         self.set_ovrseen_base_path.clicked.connect(MainWindow.setOVRSeenDirectory)
 
-        self.tabWidget.setCurrentIndex(2)
+        self.tabWidget.setCurrentIndex(4)
 
 
         QMetaObject.connectSlotsByName(MainWindow)

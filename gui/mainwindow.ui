@@ -51,7 +51,7 @@
         <enum>QTabWidget::East</enum>
        </property>
        <property name="currentIndex">
-        <number>2</number>
+        <number>4</number>
        </property>
        <property name="tabsClosable">
         <bool>false</bool>
@@ -530,7 +530,7 @@ p, li { white-space: pre-wrap; }
              </widget>
             </item>
             <item>
-             <widget class="QListWidget" name="privacy_policies_app_list"/>
+             <widget class="QTableWidget" name="privacy_policies_app_list"/>
             </item>
            </layout>
           </item>
