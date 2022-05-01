@@ -1,6 +1,7 @@
 from enum import Enum
 from pathlib import Path
 import os
+import shutil
 import subprocess
 from typing import List, Tuple
 
@@ -34,7 +35,7 @@ class PathManager:
     POSTPROC_GRAPHS = POST_PROCESSING / "figs_and_tables"
 
     PRIVACY_POLICY = Path("privacy_policy")
-    NETWORK_TO_POLICY_CONSISTENCY = PRIVACY_POLICY / Path("network_to_privacy_consistency")
+    NETWORK_TO_POLICY_CONSISTENCY = PRIVACY_POLICY / Path("network_to_policy_consistency")
     PRIPOL_GRAPHS = NETWORK_TO_POLICY_CONSISTENCY / Path("ext") / Path("plots")
     PURPOSE_EXTRACTION = PRIVACY_POLICY / Path("purpose_extraction")
 
@@ -93,11 +94,20 @@ class PathManager:
         elif cmd == Command.SETUP_ANALYSIS:
             if not self.chdir_relative(PathManager.NETWORK_TO_POLICY_CONSISTENCY):
                 return None
+            if Path("ext").exists():
+                shutil.rmtree(Path("ext"))
+            if Path("ext2").exists():
+                shutil.rmtree(Path("ext2"))
+            if Path("privacy_policies").exists():
+                shutil.rmtree("privacy_policies")
+            if Path("privacy_policies.zip").exists():
+                self.exec(["unzip privacy_policies.zip -d ./"])
             os.makedirs("ext", exist_ok=True)
+            self.exec(["tar xvf NlpFinalModel.tar.gz -C ext/"])
             os.makedirs("ext/data", exist_ok=True)
-            self.exec(["cp", "ontology/*.{gml,yml}", "ext/data/"])
+            shutil.copytree(Path("ontology"), Path("ext/data"), dirs_exist_ok=True)
             self.exec(["python3", "process_zipped_policies.py", "privacy_policies", "ext/html_policies"])
-            self.exec(["cp", "../../network_traffic/post-processing/all-merged-with-esld-engine-privacy-developer-party.csv", "."])
+            shutil.copy2(self._ovrseen_path / PathManager.POST_PROCESSING / "all-merged-with-esld-engine-privacy-developer-party.csv", "./")
             self.exec(["python3", "preprocess_policheck_flows.py", "all-merged-with-esld-engine-privacy-developer-party.csv", "ext/data/policheck_flows.csv"])
         elif cmd == Command.ANALYZE_DATA:
             if not self.chdir_relative(PathManager.NETWORK_TO_POLICY_CONSISTENCY):

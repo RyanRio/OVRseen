@@ -47,9 +47,19 @@ class MainWindow(QMainWindow):
         self.ui.pushButton.clicked.connect(self.downloadAPKs)
         globals.redirect_print_func = self.redirect_print
 
+        # set up frida buttons
+        self.ui.frida_bypass.clicked.connect(self.fridaBypass)
+        self.ui.frida_collect.clicked.connect(self.fridaCollect)
+        self.ui.frida_collect_uninstall.clicked.connect(self.fridaCollectUninstall)
+        self.ui.frida_instructions.append("""
+        In this tab you can collect pcaps using frida to bypass ssl pinnings.
+        First you will need to select an app from the left bar to experiment with.
+        Then you can use the buttons below to collect pcaps.
+        """)
+
         # set up post-processing buttons
-        self.ui.post_processing.clicked.connect(self.postProcessing)
-        self.ui.pp_graphs.clicked.connect(self.ppGraphs)
+        # self.ui.post_processing.clicked.connect(self.postProcessing)
+        # self.ui.pp_graphs.clicked.connect(self.ppGraphs)
 
         # set up privacy policy buttons
         self.ui.set_up_analysis.clicked.connect(self.setUpAnalysis)
@@ -124,8 +134,6 @@ class MainWindow(QMainWindow):
             self.path_manager.run_command(utils.Command.MOVE_UNITY_SOS, [unity_folder])
 
 
-
-
     def connectOculus(self):
         self.path_manager.run_command(utils.Command.ADB_CONNECT_TCP_IP)
 
@@ -139,8 +147,28 @@ class MainWindow(QMainWindow):
 
     def setupFridaList(self):
         apks = list(filter(lambda x: x.endswith("apk"), os.listdir((self.path_manager.APK_PROCESSING / "APKs"))))
+        self.apk_list = apks
         for apk in apks:
             self.ui.frida_app_layout.addWidget(QPushButton(apk))
+        
+    # FRIDA BUTTONS
+
+    def fridaBypass(self):
+        self.redirect_print("bypassing ssl pinnings")
+        self.path_manager.run_command(utils.Command.FRIDA_BYPASS, self.selected_bypass_app)
+
+    def fridaCollect(self):
+        self.redirect_print("downloading pcaps (without performing post processing")
+        self.path_manager.run_command(utils.Command.FRIDA_COLLECT)
+
+    def fridaCollectUninstall(self):
+        self.redirect_print("downloading pcaps and uninstalling apk for selected app")
+        self.path_manager.run_command(utils.Command.FRIDA_COLLECT_AND_UNINSTALL)
+        # do something with selected bypass app
+
+    def processPCAPS(self):
+        # the goal of this function is to generate the all-merged-with-esld... file
+        pass
 
     # POST PROCESSING BUTTONS
 
@@ -166,17 +194,17 @@ class MainWindow(QMainWindow):
 
     def setUpAnalysis(self):
         self.redirect_print("setting up privacy policy analysis")
-        self.path_manager.run_command(utils.Command.SETUP_ANALYSIS)
+        # self.path_manager.run_command(utils.Command.SETUP_ANALYSIS)
 
         # setup privacy policy analysis paths + loaders
         pppath = self.path_manager.ovrseen_path / utils.PathManager.POST_PROCESSING / "all-merged-with-esld-engine-privacy-developer-party.csv"
         self.pp_data_loader = PPDataHandler(pppath)
         # apps data table
-        self.ui.app_list_table.setRowCount(self.pp_data_loader.number_of_apps)
-        self.ui.app_list_table.setColumnCount(2)
+        self.ui.privacy_policies_app_list.setRowCount(self.pp_data_loader.number_of_apps)
+        self.ui.privacy_policies_app_list.setColumnCount(1)
         fieldnames = ["App_Title"]
-        for row, app in enumerate(self.pp_data_loader.apps):
-            self.ui.app_list_table.setItem(row, 0, QTableWidgetItem(app))
+        for row, app in enumerate(self.pp_data_loader.apps()):
+            self.ui.privacy_policies_app_list.setItem(row, 0, QTableWidgetItem(app))
 
     def analyzeData(self):
         self.redirect_print("conducting privacy policy analysis")
