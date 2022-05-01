@@ -82,7 +82,6 @@ class PathManager:
             if not self.chdir_relative(PathManager.APK_PROCESSING):
                 return None
             self.exec(["sudo adb start-server"])
-            redirect_print_func("PLEASE confirm the prompt on your oculus as well")
             globals.redirect_print_func("PLEASE confirm the prompt on your oculus as well")
             apk_download_utility.run("InstalledAPKs", "APKs")
         elif cmd == Command.APK_DOWNLOAD:

@@ -51,7 +51,7 @@
         <enum>QTabWidget::East</enum>
        </property>
        <property name="currentIndex">
-        <number>3</number>
+        <number>4</number>
        </property>
        <property name="tabsClosable">
         <bool>false</bool>
@@ -226,7 +226,7 @@
        </widget>
        <widget class="QWidget" name="a_trafficcollection">
         <attribute name="title">
-         <string>Traffic Collection</string>
+         <string>APK Setup</string>
         </attribute>
         <widget class="QWidget" name="horizontalLayoutWidget_2">
          <property name="geometry">
@@ -358,6 +358,83 @@ wiki, however this automates many of the tasks required.
          </layout>
         </widget>
        </widget>
+       <widget class="QWidget" name="d_frida">
+        <attribute name="title">
+         <string>Frida</string>
+        </attribute>
+        <widget class="QWidget" name="horizontalLayoutWidget_5">
+         <property name="geometry">
+          <rect>
+           <x>30</x>
+           <y>30</y>
+           <width>641</width>
+           <height>451</height>
+          </rect>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_4">
+          <item>
+           <layout class="QVBoxLayout" name="frida_app_layout">
+            <item>
+             <widget class="QLabel" name="label_7">
+              <property name="text">
+               <string>Apps To Test (Click to begin testing)</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_7">
+            <item>
+             <widget class="QLabel" name="label_9">
+              <property name="text">
+               <string>Follow The Instructions Below</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QTextEdit" name="frida_instructions"/>
+            </item>
+            <item>
+             <widget class="QPushButton" name="frida_bypass">
+              <property name="text">
+               <string>App is Launched</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="frida_collect">
+              <property name="text">
+               <string>Close App</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pushButton_4">
+              <property name="text">
+               <string>Close App (And Uninstall)</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_2">
+            <item>
+             <widget class="QLabel" name="label_8">
+              <property name="text">
+               <string>Shell Log</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QTextEdit" name="frida_shell_log"/>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </widget>
        <widget class="QWidget" name="b_post_processing">
         <attribute name="title">
          <string>Post Processing</string>
@@ -418,13 +495,6 @@ p, li { white-space: pre-wrap; }
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="load_collected">
-              <property name="text">
-               <string>Load Collected App Data</string>
-              </property>
-             </widget>
-            </item>
-            <item>
              <widget class="QPushButton" name="analyze_data">
               <property name="text">
                <string>Analyze App Data</string>
@@ -446,7 +516,7 @@ p, li { white-space: pre-wrap; }
              </widget>
             </item>
             <item>
-             <widget class="QPlainTextEdit" name="plainTextEdit"/>
+             <widget class="QTextEdit" name="privacy_policies_log"/>
             </item>
            </layout>
           </item>
@@ -460,7 +530,7 @@ p, li { white-space: pre-wrap; }
              </widget>
             </item>
             <item>
-             <widget class="QListWidget" name="listWidget_2"/>
+             <widget class="QTableWidget" name="privacy_policies_app_list"/>
             </item>
            </layout>
           </item>
@@ -474,17 +544,12 @@ p, li { white-space: pre-wrap; }
              </widget>
             </item>
             <item>
-             <widget class="QListWidget" name="listWidget"/>
+             <widget class="QListWidget" name="privacy_policies_graph_list"/>
             </item>
            </layout>
           </item>
          </layout>
         </widget>
-       </widget>
-       <widget class="QWidget" name="d_polisis">
-        <attribute name="title">
-         <string>Polisis</string>
-        </attribute>
        </widget>
       </widget>
      </item>

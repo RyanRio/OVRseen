@@ -1,7 +1,7 @@
 from fileinput import filename
 from pathlib import Path
-import sys, io
-from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QTableWidgetItem, QCheckBox
+import sys, io, os
+from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QTableWidgetItem, QCheckBox, QPushButton
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import QFile, QRect, QEvent
 
@@ -56,6 +56,17 @@ class MainWindow(QMainWindow):
         self.ui.analyze_data.clicked.connect(self.analyzeData)
         self.ui.create_graphs.clicked.connect(self.createGraphs)
 
+        # setup privacy policy analysis paths + loaders
+        pppath = self.path_manager.ovrseen_path / utils.PathManager.POST_PROCESSING / "all-merged-with-esld-engine-privacy-developer-party.csv"
+        self.pp_data_loader = PPDataHandler(pppath)
+        # apps data table
+        self.ui.privacy_policies_app_list.setRowCount(self.pp_data_loader.number_of_apps)
+        self.ui.privacy_policies_app_list.setColumnCount(2)
+        fieldnames = ["Selected","App_Title"]
+        for row, app in enumerate(self.pp_data_loader.apps):
+            self.ui.privacy_policies_app_list.setItem(row, 0, QTableWidgetItem(QCheckBox())) # TODO check
+            self.ui.privacy_policies_app_list.setItem(row, 1, QTableWidgetItem(app))
+
     def resizeEvent(self, event):
         self.ui.horizontalLayoutWidget.setGeometry(QRect(0, 0, self.width(), self.height()))
         self.ui.app_layout_object.setGeometry(QRect(0, 0, self.width() - 20, self.height() - 20))
@@ -68,6 +79,14 @@ class MainWindow(QMainWindow):
             out = io.StringIO()
             print(*args, **kwargs, file=out)
             self.ui.textEdit.append(out.getvalue())
+        elif tab_name == "c_privacypolicies":
+            out = io.StringIO()
+            print(*args, **kwargs, file=out)
+            self.ui.privacy_policies_log.append(out.getvalue())
+        elif tab_name == "d_frida":
+            out = io.StringIO()
+            print(*args, **kwargs, file=out)
+            self.ui.frida_shell_log.append(out.getvalue())
         else:
             print(*args, **kwargs)
 
@@ -126,6 +145,13 @@ class MainWindow(QMainWindow):
 
     def downloadAPKs(self):
         self.path_manager.run_command(utils.Command.APK_DOWNLOAD)
+        # now check apk folder to add to frida apps
+        self.setupFridaList()
+
+    def setupFridaList(self):
+        apks = list(filter(lambda x: x.endswith("apk"), os.listdir((self.path_manager.APK_PROCESSING / "APKs"))))
+        for apk in apks:
+            self.ui.frida_app_layout.addWidget(QPushButton(apk))
 
     # POST PROCESSING BUTTONS
 
@@ -146,7 +172,7 @@ class MainWindow(QMainWindow):
         for row, graph in enumerate(self.postproc_graph_loader.graphs):
             self.ui.postproc_graph_table.setItem(row, 0, QTableWidgetItem(graph))
             self.ui.postproc_graph_table.setItem(row, 1, QTableWidgetItem())# TODO add open button)) # TODO check
-
+            
     # PRIVACY POLICY BUTTONS
 
     def setUpAnalysis(self):
