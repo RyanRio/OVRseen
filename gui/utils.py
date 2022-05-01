@@ -15,6 +15,10 @@ class Command(Enum):
     MOVE_UNITY_SOS = 4
     APK_BLACKLIST = 5
     APK_DOWNLOAD = 6
+    SETUP_ANALYSIS = 7
+    LOAD_COLLECTED = 8
+    ANALYZE_DATA = 9
+    CREATE_GRAPHS = 10
 
 class PathManager:
 
@@ -75,6 +79,18 @@ class PathManager:
                 return None
             self.exec(["sudo adb start-server"])
             redirect_print_func("PLEASE confirm the prompt on your oculus as well")
+        elif cmd = Command.SETUP_ANALYSIS:
+            # TODO
+            pass
+        elif cmd = Command.LOAD_COLLECTED:
+            # TODO
+            pass
+        elif cmd = Command.ANALYZE_DATA:
+            # TODO
+            pass
+        elif cmd = Command.CREATE_GRAPHS:
+            # TODO
+            pass
 
         self.chdir_base()
 
