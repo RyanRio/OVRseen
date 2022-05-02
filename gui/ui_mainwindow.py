@@ -91,22 +91,15 @@ class Ui_MainWindow(object):
 
         self.formLayout.setWidget(0, QFormLayout.FieldRole, self.label)
 
-        self.set_ovrseen_base_path = QPushButton(self.app_layout_object)
-        self.set_ovrseen_base_path.setObjectName(u"set_ovrseen_base_path")
+        self.load_dataset_file = QPushButton(self.app_layout_object)
+        self.load_dataset_file.setObjectName(u"load_dataset_file")
         sizePolicy3 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
         sizePolicy3.setHorizontalStretch(0)
         sizePolicy3.setVerticalStretch(0)
-        sizePolicy3.setHeightForWidth(self.set_ovrseen_base_path.sizePolicy().hasHeightForWidth())
-        self.set_ovrseen_base_path.setSizePolicy(sizePolicy3)
-
-        self.formLayout.setWidget(1, QFormLayout.FieldRole, self.set_ovrseen_base_path)
-
-        self.load_dataset_file = QPushButton(self.app_layout_object)
-        self.load_dataset_file.setObjectName(u"load_dataset_file")
         sizePolicy3.setHeightForWidth(self.load_dataset_file.sizePolicy().hasHeightForWidth())
         self.load_dataset_file.setSizePolicy(sizePolicy3)
 
-        self.formLayout.setWidget(2, QFormLayout.FieldRole, self.load_dataset_file)
+        self.formLayout.setWidget(1, QFormLayout.FieldRole, self.load_dataset_file)
 
         self.label_2 = QLabel(self.app_layout_object)
         self.label_2.setObjectName(u"label_2")
@@ -115,7 +108,7 @@ class Ui_MainWindow(object):
         self.label_2.setMaximumSize(QSize(16777215, 20))
         self.label_2.setFont(font)
 
-        self.formLayout.setWidget(3, QFormLayout.FieldRole, self.label_2)
+        self.formLayout.setWidget(2, QFormLayout.FieldRole, self.label_2)
 
         self.dataset_files = QListWidget(self.app_layout_object)
         self.dataset_files.setObjectName(u"dataset_files")
@@ -125,7 +118,7 @@ class Ui_MainWindow(object):
         sizePolicy4.setHeightForWidth(self.dataset_files.sizePolicy().hasHeightForWidth())
         self.dataset_files.setSizePolicy(sizePolicy4)
 
-        self.formLayout.setWidget(4, QFormLayout.FieldRole, self.dataset_files)
+        self.formLayout.setWidget(3, QFormLayout.FieldRole, self.dataset_files)
 
         self.ovrseen_directory = QLabel(self.app_layout_object)
         self.ovrseen_directory.setObjectName(u"ovrseen_directory")
@@ -138,7 +131,7 @@ class Ui_MainWindow(object):
         self.ovrseen_directory.setFont(font)
         self.ovrseen_directory.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
 
-        self.formLayout.setWidget(5, QFormLayout.FieldRole, self.ovrseen_directory)
+        self.formLayout.setWidget(4, QFormLayout.FieldRole, self.ovrseen_directory)
 
 
         self.app_layout.addLayout(self.formLayout)
@@ -302,25 +295,6 @@ class Ui_MainWindow(object):
         self.horizontalLayout_4.addLayout(self.verticalLayout_2)
 
         self.tabWidget.addTab(self.d_frida, "")
-        self.b_post_processing = QWidget()
-        self.b_post_processing.setObjectName(u"b_post_processing")
-        self.horizontalLayoutWidget_4 = QWidget(self.b_post_processing)
-        self.horizontalLayoutWidget_4.setObjectName(u"horizontalLayoutWidget_4")
-        self.horizontalLayoutWidget_4.setGeometry(QRect(40, 30, 581, 431))
-        self.horizontalLayout_3 = QHBoxLayout(self.horizontalLayoutWidget_4)
-        self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
-        self.horizontalLayout_3.setContentsMargins(0, 0, 0, 0)
-        self.pushButton_3 = QPushButton(self.horizontalLayoutWidget_4)
-        self.pushButton_3.setObjectName(u"pushButton_3")
-
-        self.horizontalLayout_3.addWidget(self.pushButton_3)
-
-        self.textEdit_3 = QTextEdit(self.horizontalLayoutWidget_4)
-        self.textEdit_3.setObjectName(u"textEdit_3")
-
-        self.horizontalLayout_3.addWidget(self.textEdit_3)
-
-        self.tabWidget.addTab(self.b_post_processing, "")
         self.c_privacypolicies = QWidget()
         self.c_privacypolicies.setObjectName(u"c_privacypolicies")
         self.horizontalLayoutWidget_3 = QWidget(self.c_privacypolicies)
@@ -404,9 +378,8 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
         self.load_dataset_file.clicked.connect(MainWindow.loadAppCorpusFile)
-        self.set_ovrseen_base_path.clicked.connect(MainWindow.setOVRSeenDirectory)
 
-        self.tabWidget.setCurrentIndex(2)
+        self.tabWidget.setCurrentIndex(0)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -415,11 +388,10 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
         self.label.setText(QCoreApplication.translate("MainWindow", u"App Corpus Configuration", None))
-        self.set_ovrseen_base_path.setText(QCoreApplication.translate("MainWindow", u"Choose OVRSeen Directory", None))
         self.load_dataset_file.setText(QCoreApplication.translate("MainWindow", u"Load Dataset File", None))
         self.label_2.setText(QCoreApplication.translate("MainWindow", u"Dataset Files:", None))
         self.ovrseen_directory.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.a_apps), QCoreApplication.translate("MainWindow", u"Apps", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.a_apps), QCoreApplication.translate("MainWindow", u"App Dataset View", None))
         self.clear_antmonitor_data.setText(QCoreApplication.translate("MainWindow", u"Clear Antmonitor Data", None))
         self.frida_libs.setText(QCoreApplication.translate("MainWindow", u"Download Frida Libs", None))
 #if QT_CONFIG(tooltip)
@@ -448,14 +420,6 @@ class Ui_MainWindow(object):
         self.label_8.setText(QCoreApplication.translate("MainWindow", u"Shell Log", None))
         self.frida_process_pcaps.setText(QCoreApplication.translate("MainWindow", u"Process PCAPs", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.d_frida), QCoreApplication.translate("MainWindow", u"Frida", None))
-        self.pushButton_3.setText(QCoreApplication.translate("MainWindow", u"PushButton", None))
-        self.textEdit_3.setHtml(QCoreApplication.translate("MainWindow", u"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><meta charset=\"utf-8\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:'Segoe UI'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Click here to download the required filter lists: <a href=\"https://drive.google.com/uc?id=1rySec21Xx_t_x9T04KCX7W4oGUCtf3tt\"><span style=\" text-decoration: underline; color:#007af4;\">google drive link</span></a></p>\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Then click &quot;select filter lists&quot; to set up your filters</p></body></html>", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.b_post_processing), QCoreApplication.translate("MainWindow", u"Post Processing", None))
         self.set_up_analysis.setText(QCoreApplication.translate("MainWindow", u"Set Up Analysis", None))
         self.analyze_data.setText(QCoreApplication.translate("MainWindow", u"Analyze App Data", None))
         self.create_graphs.setText(QCoreApplication.translate("MainWindow", u"Generate Graphs", None))
