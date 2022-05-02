@@ -4,14 +4,11 @@ import io
 import os
 import re
 import sys
-from typing import List
 import zipfile
 
 from bs4 import BeautifulSoup
 from pdfminer.high_level import extract_text_to_fp
 from pdfminer.layout import LAParams
-
-from gui import globals
 
 
 def fix_zip_filename(name):
@@ -127,14 +124,21 @@ def process_zip(path):
 
     return app_name, str(single_soup)
 
-def run(input_dir: str, output_dir: str, packages: List[str]):
+
+def main():
+    input_dir = sys.argv[1]
+    output_dir = sys.argv[2]
     os.makedirs(output_dir, exist_ok=True)
+
     for root, _, files in os.walk(input_dir):
         for filename in files:
             if filename.endswith(".zip"):
-                if root.endswith("ExtraThirdParties") or any(map(lambda package: (package + ".zip") == filename, packages)):
-                    fullpath = os.path.join(root, filename)
-                    app_name, html = process_zip(fullpath)
+                fullpath = os.path.join(root, filename)
+                app_name, html = process_zip(fullpath)
 
-                    with open(os.path.join(output_dir, app_name + ".html"), "w") as fout:
-                        fout.write(html)
+                with open(os.path.join(output_dir, app_name + ".html"), "w") as fout:
+                    fout.write(html)
+
+
+if __name__ == "__main__":
+    main()

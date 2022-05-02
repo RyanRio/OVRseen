@@ -16,3 +16,6 @@ class PPDataHandler:
 
     def apps(self):
         return self.df.App_Title.unique().tolist()
+
+    def packages(self):
+        return self.df.app_id.unique().tolist()

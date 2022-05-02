@@ -9,7 +9,8 @@ from network_traffic.traffic_collection.apk_processing import apk_builder
 from network_traffic.traffic_collection.apk_processing import apk_download_utility
 from gui import globals
 from network_traffic.post_processing.process_pcaps import run as run_process_pcaps
-
+from privacy_policy.network_to_policy_consistency.process_zipped_policies import run as run_process_zipped_policies
+from privacy_policy.network_to_policy_consistency.make_plots import run as run_make_plots
 
 class Command(Enum):
     # traffic collection
@@ -171,7 +172,7 @@ class PathManager:
             self.exec(["tar xvf NlpFinalModel.tar.gz -C ext/"])
             os.makedirs("ext/data", exist_ok=True)
             shutil.copytree(Path("ontology"), Path("ext/data"), dirs_exist_ok=True)
-            self.exec(["python3", "process_zipped_policies.py", "privacy_policies", "ext/html_policies"])
+            run_process_zipped_policies("privacy_policies", "ext/html_policies", args[0])
             shutil.copy2(self._ovrseen_path / PathManager.POST_PROCESSING / "PCAPs/all-merged-with-esld-engine-privacy-developer-party.csv", "./")
             self.exec(["python3", "preprocess_policheck_flows.py", "all-merged-with-esld-engine-privacy-developer-party.csv", "ext/data/policheck_flows.csv"])
         elif cmd == Command.ANALYZE_DATA:
@@ -193,7 +194,9 @@ class PathManager:
         elif cmd == Command.CREATE_GRAPHS:
             if not self.chdir_relative(PathManager.NETWORK_TO_POLICY_CONSISTENCY):
                 return None
-            self.exec(["python3", "make_plots.py", "ext/", "ext2/"])
+            globals.redirect_print_func("making plots")
+            run_make_plots("ext/", "ext2/")
+            globals.redirect_print_func(f"finished plots, check {PathManager.NETWORK_TO_POLICY_CONSISTENCY / 'ext/plots'}")
         elif cmd == Command.FRIDA_SELECT_APK:
             if len(args) != 1:
                 return None

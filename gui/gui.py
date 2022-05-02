@@ -241,12 +241,13 @@ If you attempt to do anything but test an app, you must have the usb device plug
 
     def setUpAnalysis(self):
         self.redirect_print("setting up privacy policy analysis")
-        self.path_manager.run_command(utils.Command.SETUP_ANALYSIS)
 
         # setup privacy policy analysis paths + loaders
         pppath = self.path_manager.ovrseen_path / utils.PathManager.POST_PROCESSING / "PCAPs/all-merged-with-esld-engine-privacy-developer-party.csv"
         self.pp_data_loader = PPDataHandler(pppath)
         # apps data table
+        self.path_manager.run_command(utils.Command.SETUP_ANALYSIS, [self.pp_data_loader.packages()])
+
         self.ui.privacy_policies_app_list.setRowCount(self.pp_data_loader.number_of_apps)
         self.ui.privacy_policies_app_list.setColumnCount(1)
         fieldnames = ["App_Title"]
@@ -263,9 +264,9 @@ If you attempt to do anything but test an app, you must have the usb device plug
 
         self.pripol_graph_loader = PriPolGraphHandler(utils.PathManager.PRIPOL_GRAPHS)
         # created graphs table
-        self.ui.pripol_graph_table.setRowCount(4)
-        self.ui.pripol_graph_table.setColumnCount(2)
-        fieldnames = ["Graph","Open",]
-        for row, graph in enumerate(self.pripol_graph_loader.graphs):
-            self.ui.pripol_graph_table.setItem(row, 0, QTableWidgetItem(graph))
-            self.ui.pripol_graph_table.setItem(row, 1, QTableWidgetItem())# TODO add open button)) # TODO check
+        # self.ui.pripol_graph_table.setRowCount(4)
+        # self.ui.pripol_graph_table.setColumnCount(2)
+        # fieldnames = ["Graph","Open",]
+        # for row, graph in enumerate(self.pripol_graph_loader.graphs):
+        #     self.ui.pripol_graph_table.setItem(row, 0, QTableWidgetItem(graph))
+        #     self.ui.pripol_graph_table.setItem(row, 1, QTableWidgetItem())# TODO add open button)) # TODO check

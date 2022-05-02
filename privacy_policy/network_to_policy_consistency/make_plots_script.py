@@ -80,6 +80,7 @@ def draw_heatmaps(df: pd.DataFrame):
 
     # order of entities
     ent_app_counts = df.groupby(['flowEntity'])['packageName'].nunique().sort_values(kind='mergesort')
+    print(ent_app_counts.head())
     if 'facebook' in ent_app_counts:
         ent_app_counts['facebook'] = ent_app_counts.pop('facebook')
     if 'oculus' in ent_app_counts:
@@ -234,21 +235,24 @@ def draw_entity_barplot(df):
     tmp = df.groupby(['consistencyResult', 'flowEntity']).size().unstack().fillna(0)
     reduced_list = [key for key in CONSISTENCY_MAP.keys() if key in tmp.index]
     agg = tmp.T[reduced_list]
+    print(agg)
     colors = ['#083763', '#45818e', '#a51d01', '#e99a99', '#ffe59a']
 
     ent_app_counts = df.groupby(['flowEntity'])['packageName'].nunique().sort_values(kind='mergesort')
     if 'unknown entity' in ent_app_counts.index:
         selected_parties = ent_app_counts[ent_app_counts > 1].drop('unknown entity').index
     else:
-        selected_parties = ent_app_counts[ent_app_counts >= 1].index
+        selected_parties = ent_app_counts[ent_app_counts > 1].index
     figsize = (4, 2.6)
 
+    print('selected parties: ' + selected_parties)
     sorted_cols = agg.sum(1)[selected_parties].sort_values(ascending=True, kind="mergesort").index.tolist()
     if '1st party' in sorted_cols:
         sorted_cols.remove('1st party')
         sorted_cols.append('1st party')
     agg = agg.reindex(sorted_cols)
 
+    print(agg)
     ax = agg.plot.barh(stacked=True, color=colors, figsize=figsize)
     ax.set_xlabel('Number of Data Flows')
     ax.set_ylabel('Entity', va="top")
@@ -317,9 +321,12 @@ def draw_2cmp_barplot(df1, df2):
     ax.legend(handles, labels, labelspacing=0.1, loc="upper right")
 
 
-def run(data_root: str, data_root_cmp: str):
-    DATA_ROOT = Path(data_root)
-    DATA_ROOT_CMP = Path(data_root_cmp)
+def main():
+    DATA_ROOT = Path(sys.argv[1])
+    try:
+        DATA_ROOT_CMP = Path(sys.argv[2])
+    except IndexError:
+        DATA_ROOT_CMP = None
 
     os.makedirs(DATA_ROOT / 'plots', exist_ok=True)
 
@@ -355,3 +362,7 @@ def run(data_root: str, data_root_cmp: str):
         draw_2cmp_barplot(df, df_cmp)
         plt.tight_layout()
         plt.savefig(DATA_ROOT / 'plots' / 'bar_entity_cmp.pdf')
+
+
+if __name__ == "__main__":
+    main()
