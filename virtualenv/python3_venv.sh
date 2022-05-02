@@ -40,6 +40,7 @@ if [[ ! -d python3_venv ]]; then
 	pip3 install matplotlib==3.4.3
 	pip3 install seaborn==0.11.2
 	pip3 install gdown==4.0.1
+	pip3 install pyside6
 else
 	echo "[+] Found an existing python3_venv virtual environment... Reusing it!"
 	echo "[!] Please remove the existing python3_venv and rerun this script if the existing one is broken!"
