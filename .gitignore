@@ -5,7 +5,7 @@ apps-under-test.csv
 *.zip
 figs_and_tables/
 __MACOSX
-virtualenv
+virtualenv/python3_venv
 *.csv
 *.apk
 obb/
