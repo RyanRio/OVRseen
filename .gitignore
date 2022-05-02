@@ -20,6 +20,7 @@ PCAPS_NEW/
 PCAPs/
 com.beatgames.beatsaber.demo/
 network_traffic/traffic_collection/apk_processing/all_libs/
+network_traffic/traffic_collection/apk_processing/APKs
 # temporary automation file
 network_traffic/traffic_collection/cert_validation_bypass/current_apk
 network_traffic/traffic_collection/cert_validation_bypass/pcaps

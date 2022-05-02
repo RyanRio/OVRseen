@@ -8,6 +8,8 @@ from typing import List, Tuple
 from network_traffic.traffic_collection.apk_processing import apk_builder
 from network_traffic.traffic_collection.apk_processing import apk_download_utility
 from gui import globals
+from network_traffic.post_processing.process_pcaps import run as run_process_pcaps
+
 
 class Command(Enum):
     # traffic collection
@@ -35,7 +37,7 @@ class Command(Enum):
 class PathManager:
 
     NETWORK_TRAFFIC = Path("network_traffic")
-    POST_PROCESSING = NETWORK_TRAFFIC / "post-processing"
+    POST_PROCESSING = NETWORK_TRAFFIC / "post_processing"
     TRAFFIC_COLLECTION = NETWORK_TRAFFIC / "traffic_collection"
     APK_PROCESSING = TRAFFIC_COLLECTION / "apk_processing"
     CERT_VALIDATION_BYPASS = TRAFFIC_COLLECTION / "cert_validation_bypass"
@@ -52,8 +54,59 @@ class PathManager:
         for stdout, stderr in list(outputs):
             sum_stdout += stdout + "\n"
             sum_stderr += stderr + "\n"
+    
+    def check_device_connection(self, tcpip_mode):
+        stdout, stderr = self.exec(["adb devices"])
+        lines = stdout.split("\n")
+        device = lines[1]
+        if len(lines) > 2:
+            second_device = lines[2]
+            if second_device != "":
+                if not tcpip_mode:
+                    tcp_device = device if "5555" in device else second_device
+                    ip = tcp_device.split()[0]
+                    self.exec(["adb disconnect", ip])
+                    return not tcpip_mode
+                else:
+                    globals.redirect_print_func("disconnect from usb to use ip device")
+                    return None
+        if device == '':
+            return None
+        if "5555" in device:
+            if "unauthorized" in device:
+                return None
+            return tcpip_mode # connected with tcpip mode
+        else:
+            return not tcpip_mode
+
 
     def run_command(self, cmd: Command, args: List[str] = []):
+        device_connection = self.check_device_connection(self._tcpip_mode)
+        if cmd not in self.allows_tcpip and self._tcpip_mode:
+            # try to enter usb mode and quit if fails
+            stdout, stderr = self.exec(["adb usb"])
+            self._tcpip_mode = False
+            if device_connection is None or device_connection is False:
+                globals.redirect_print_func("couldn't run command because usb device not connected")
+                return None
+        elif cmd in self.allows_tcpip and self._tcpip_mode:
+            # make sure we are connected
+            if device_connection is None:
+                if self._tcpip_ip is not None:
+                    self.exec(["adb connect", self._tcpip_ip])
+                    retry_connection = self.check_device_connection(self._tcpip_mode)
+                    if retry_connection is not True:
+                        globals.redirect_print_func("couldnt connect by ip")
+                        return None
+                else:
+                    globals.redirect_print_func(["please connect the oculus by usb and then click 'Connect Oculus'"])
+            elif device_connection is False:
+                globals.redirect_print_func(["please click 'Connect Oculus'"])
+        elif device_connection is None:
+            globals.redirect_print_func("device is not connected")
+            globals.redirect_print_func("please plug in the device and then accept the prompt")
+            return None     
+        # command handling
         if cmd == Command.INSTALL_ANTMONITOR:
             return self.exec(["adb", "install", *args])
         elif cmd == Command.CLEAR_ANTMONITOR_DATA:
@@ -83,6 +136,8 @@ class PathManager:
                     ip = stdout[inet + 5:slash]
                     self.exec(["adb tcpip 5555"])
                     self.exec(["adb connect", ip + ":5555"])
+                    self._tcpip_ip = ip + ":5555"
+                    self._tcpip_mode = True
             else:
                 globals.redirect_print_func("connection couldn't be established")
         elif cmd == Command.MOVE_UNITY_SOS:
@@ -117,7 +172,7 @@ class PathManager:
             os.makedirs("ext/data", exist_ok=True)
             shutil.copytree(Path("ontology"), Path("ext/data"), dirs_exist_ok=True)
             self.exec(["python3", "process_zipped_policies.py", "privacy_policies", "ext/html_policies"])
-            shutil.copy2(self._ovrseen_path / PathManager.POST_PROCESSING / "all-merged-with-esld-engine-privacy-developer-party.csv", "./")
+            shutil.copy2(self._ovrseen_path / PathManager.POST_PROCESSING / "PCAPs/all-merged-with-esld-engine-privacy-developer-party.csv", "./")
             self.exec(["python3", "preprocess_policheck_flows.py", "all-merged-with-esld-engine-privacy-developer-party.csv", "ext/data/policheck_flows.csv"])
         elif cmd == Command.ANALYZE_DATA:
             if not self.chdir_relative(PathManager.NETWORK_TO_POLICY_CONSISTENCY):
@@ -139,11 +194,6 @@ class PathManager:
             if not self.chdir_relative(PathManager.NETWORK_TO_POLICY_CONSISTENCY):
                 return None
             self.exec(["python3", "make_plots.py", "ext/", "ext2/"])
-        elif cmd == Command.POST_PROCESSING:
-            if not self.chdir_relative(PathManager.POST_PROCESSING):
-                return None
-            self.exec(["rm", "-r", "PCAPs/*.csv;", "rm", "-r", "PCAPs/temp_output"])
-            self.exec(["python3", "process_pcaps.py", "PCAPs", "."])
         elif cmd == Command.FRIDA_SELECT_APK:
             if len(args) != 1:
                 return None
@@ -157,10 +207,12 @@ class PathManager:
             if len(pkg_name) == 0:
                 # then need to install it
                 self.install_apk_to_oculus(frida_apk_path)
+                pkg_name = self.get_package_name(frida_apk_path)
             else:
                 globals.redirect_print_func("apk is already downloaded onto the oculus")
             with open(self._ovrseen_path / PathManager.CERT_VALIDATION_BYPASS / "current_apk", "w") as f:
                 f.write(pkg_name)
+            return pkg_name
         elif cmd == Command.FRIDA_REINSTALL_APK:
             if len(args) != 1:
                 return None
@@ -189,6 +241,17 @@ class PathManager:
             if not self.chdir_relative(PathManager.CERT_VALIDATION_BYPASS):
                 return None
             self.collect_frida_pcaps(uninstall=True)
+        elif cmd == Command.POST_PROCESSING:
+            if not self.chdir_relative(PathManager.POST_PROCESSING):
+                return None
+            if Path("PCAPs").exists():
+                # remove all csv files
+                shutil.rmtree(Path("PCAPs"))
+            shutil.copytree(self._ovrseen_path / PathManager.CERT_VALIDATION_BYPASS / "pcaps", "PCAPs")
+            if Path("PCAPs/temp_output").exists():
+                shutil.rmtree("PCAPs/temp_output")
+            run_process_pcaps("PCAPs", ".")
+        
         # elif cmd == Command.PP_GRAPHS:
         #     if not self.chdir_relative(PathManager.POST_PROCESSING / Path("figs_and_tables")):
         #         return None
@@ -225,7 +288,7 @@ class PathManager:
             self.exec([f"adb -d uninstall {pkg_name}"])
 
     def create_frida_apk(self, apk_path):
-        repackageApk = apk_builder.ApkBuilder(apk_path=apk_path, keystore_pw="password", inject_frida=True, downgrade_api=True, inject_internet_perm=True)
+        repackageApk = apk_builder.ApkBuilder(apk_path="APKs/" + apk_path, keystore_pw="password", inject_frida=True, downgrade_api=True, inject_internet_perm=True)
         repackageApk.run()
 
     def install_apk_to_oculus(self, apk_path: str):
@@ -294,6 +357,9 @@ class PathManager:
     def __init__(self) -> None:
         self._ovrseen_path = Path(os.path.dirname(__file__)).parent
         self.has_sudoed = False
+        self._tcpip_mode = False
+        self.allows_tcpip = [Command.FRIDA_BYPASS]
+        self._tcpip_ip = None
 
     @property
     def ovrseen_path(self):

@@ -24,6 +24,7 @@ class MainWindow(QMainWindow):
         self.path_manager = utils.PathManager()
         self.app_loader = AppLoader()
         self.redirect_print_func = None
+        self.tcpip_mode = False
 
         self.ui.app_list_table.setRowCount(self.app_loader.number_of_apps)
         self.ui.app_list_table.setColumnCount(4)
@@ -42,7 +43,6 @@ class MainWindow(QMainWindow):
         self.ui.clear_antmonitor_data.clicked.connect(self.clearAntmonitorData)
         self.ui.frida_libs.clicked.connect(self.downloadFridaLibs)
         self.ui.unity_so_files.clicked.connect(self.moveUnityFolder)
-        self.ui.connect_oculus.clicked.connect(self.connectOculus)
         self.ui.app_blacklist.clicked.connect(self.setAppBlacklist)
         self.ui.pushButton.clicked.connect(self.downloadAPKs)
         globals.redirect_print_func = self.redirect_print
@@ -52,6 +52,7 @@ class MainWindow(QMainWindow):
         self.ui.frida_collect.clicked.connect(self.fridaCollect)
         self.ui.frida_collect_uninstall.clicked.connect(self.fridaCollectUninstall)
         self.ui.reinstall_frida_app.clicked.connect(self.fridaReinstallAPK)
+        self.ui.connect_oculus_wireless.clicked.connect(self.connectOculus)
         self.ui.frida_instructions.append("""
         In this tab you can collect pcaps using frida to bypass ssl pinnings.
         First you will need to select an app from the left bar to experiment with.
@@ -62,6 +63,7 @@ class MainWindow(QMainWindow):
         self.selectedApk = None
 
         # set up post-processing buttons
+        self.ui.frida_process_pcaps.clicked.connect(self.postProcessing)
         # self.ui.post_processing.clicked.connect(self.postProcessing)
         # self.ui.pp_graphs.clicked.connect(self.ppGraphs)
 
@@ -139,10 +141,6 @@ class MainWindow(QMainWindow):
         if len(unity_folder) > 0:
             self.path_manager.run_command(utils.Command.MOVE_UNITY_SOS, [unity_folder])
 
-
-    def connectOculus(self):
-        self.path_manager.run_command(utils.Command.ADB_CONNECT_TCP_IP)
-
     def setAppBlacklist(self):
         self.path_manager.run_command(utils.Command.APK_BLACKLIST)
 
@@ -160,7 +158,10 @@ class MainWindow(QMainWindow):
             def buttonCallback(apk_name):
                 self.redirect_print("apk: ", apk_name, " selected.")
                 self.selectedApk = apk_name
-                self.path_manager.run_command(utils.Command.FRIDA_SELECT_APK, [self.selectedApk])
+                result = self.path_manager.run_command(utils.Command.FRIDA_SELECT_APK, [self.selectedApk])
+                if result is None:
+                    self.selectedApk = None
+                    return
                 self.ui.frida_instructions.setText(
                     f"""
 You have selected: {self.selectedApk}. You can perform the following actions:
@@ -181,6 +182,19 @@ Finally, close the app, this will resume the gui for further use.
             self.ui.frida_app_layout.addWidget(new_button)
         
     # FRIDA BUTTONS
+
+    def connectOculus(self):
+        if self.selectedApk is None:
+            self.redirect_print("Before connecting wirelessly, choose an app to test")
+            return
+        instructions = self.ui.frida_instructions.toPlainText()
+        if "wireless instructions" not in instructions:
+            self.ui.frida_instructions.append(
+            """
+Device has been set up in tcpip mode, you may now unplug the device.
+If you attempt to do anything but test an app, you must have the usb device plugged in.
+            """)
+        self.path_manager.run_command(utils.Command.ADB_CONNECT_TCP_IP)
 
     def fridaReinstallAPK(self):
         if self.selectedApk is None:
@@ -227,10 +241,10 @@ Finally, close the app, this will resume the gui for further use.
 
     def setUpAnalysis(self):
         self.redirect_print("setting up privacy policy analysis")
-        # self.path_manager.run_command(utils.Command.SETUP_ANALYSIS)
+        self.path_manager.run_command(utils.Command.SETUP_ANALYSIS)
 
         # setup privacy policy analysis paths + loaders
-        pppath = self.path_manager.ovrseen_path / utils.PathManager.POST_PROCESSING / "all-merged-with-esld-engine-privacy-developer-party.csv"
+        pppath = self.path_manager.ovrseen_path / utils.PathManager.POST_PROCESSING / "PCAPs/all-merged-with-esld-engine-privacy-developer-party.csv"
         self.pp_data_loader = PPDataHandler(pppath)
         # apps data table
         self.ui.privacy_policies_app_list.setRowCount(self.pp_data_loader.number_of_apps)

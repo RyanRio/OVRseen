@@ -304,7 +304,14 @@ def extract_from_tshark(full_path, data, is_decrypted, include_http_body=False):
 
             # Extract package info from comment
             comment = layers[json_keys.pkt_comment][json_keys.frame_comment]
-            comment_data = json.loads(comment)
+            if "#" in comment:
+                parts = comment.split("#")
+                comment_data = {
+                    'package_name': parts[0],
+                    'package_version': parts[1]
+                }
+            else:
+                comment_data = json.loads(comment)
             new_packet[json_keys.package_name] = comment_data[json_keys.package_name]
             new_packet[json_keys.version] = comment_data[json_keys.version]
 

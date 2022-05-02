@@ -72,7 +72,6 @@ class ApkBuilder:
 
 		if not os.path.isfile(self.apk_path):
 			globals.redirect_print_func("[E] File doesn't exist: %s\n[*] Quitting!" % (self.apk_path))
-			sys.exit(1)
 
 		SMALI_DIRECT_METHODS = """    .method static constructor <clinit>()V
 			.locals 1
